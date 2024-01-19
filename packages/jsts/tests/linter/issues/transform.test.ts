@@ -23,9 +23,10 @@ import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../tool
 import { transformMessages } from '../../../src/linter/issues';
 import { rule as noDuplicateInComposite } from '../../../src/rules/S4621';
 import { rule as noUnusedFunctionArgument } from '../../../src/rules/S1172';
+import { describe } from '../../../../../tools/jest-to-tape-bridge';
 
-describe('transformMessages', () => {
-  it('should transform ESLint messages', async () => {
+describe('transformMessages', ({ it }) => {
+  it('should transform ESLint messages', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'message.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -48,7 +49,7 @@ describe('transformMessages', () => {
     );
   });
 
-  it('should normalize ESLint locations', async () => {
+  it('should normalize ESLint locations', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'location.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -72,7 +73,7 @@ describe('transformMessages', () => {
     );
   });
 
-  it('should transform ESLint fixes', async () => {
+  it('should transform ESLint fixes', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'fix.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -105,9 +106,9 @@ describe('transformMessages', () => {
     );
   });
 
-  it('should decode secondary locations', async () => {
+  it('should decode secondary locations', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'secondary.ts');
-    const tsConfigs = [];
+    const tsConfigs: Array<any> = [];
     const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
 
     const ruleId = 'no-duplicate-in-composite';
@@ -133,9 +134,9 @@ describe('transformMessages', () => {
     ]);
   });
 
-  it('should remove ucfg issues', async () => {
+  it('should remove ucfg issues', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'secondary.ts');
-    const tsConfigs = [];
+    const tsConfigs: Array<any> = [];
     const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
 
     const linter = new Linter();

@@ -20,9 +20,10 @@
 import { findNoSonarLines } from '../../../../src';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../tools';
+import { describe } from '../../../../../../tools/jest-to-tape-bridge';
 
-describe('findNoSonarLines', () => {
-  it('should find NOSONAR comment lines', async () => {
+describe('findNoSonarLines', ({ it }) => {
+  it('should find NOSONAR comment lines', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'nosonar.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const { nosonarLines } = findNoSonarLines(sourceCode);

@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getQuickFixMessage } from '../../../src/linter/quickfixes';
+import { describe } from '../../../../../tools/jest-to-tape-bridge';
 
-describe('messages', () => {
-  it('should return a quick fix message', () => {
+describe('messages', ({ it }) => {
+  it('should return a quick fix message', ({ expect }) => {
     expect(getQuickFixMessage('comma-dangle')).toEqual('Remove this trailing comma');
   });
 
-  it('should fail returning a quick fix message for an unknown rule', () => {
+  it('should fail returning a quick fix message for an unknown rule', ({ expect }) => {
     expect(() => getQuickFixMessage('no-such-rule')).toThrow(
       `Missing message for quick fix 'no-such-rule'`,
     );

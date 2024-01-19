@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { addLines } from '../../../../../src/linter/visitors/metrics/helpers';
+import { describe } from '../../../../../../../tools/jest-to-tape-bridge';
 
-describe('addLines', () => {
-  it('should add lines within a range', () => {
+describe('addLines', ({ it }) => {
+  it('should add lines within a range', ({ expect }) => {
     const lines = new Set<number>();
     addLines(1, 5, lines);
     expect(lines).toEqual(new Set([1, 2, 3, 4, 5]));

@@ -18,20 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { toUnixPath } from '@sonar/shared';
+import { toUnixPath } from '../../../shared/src';
 import {
   searchPackageJsonFiles,
   getAllPackageJsons,
   getNearestPackageJsons,
   PackageJsonsByBaseDir,
-} from '@sonar/jsts';
+} from '../../../jsts/src';
+import { describe } from '../../../../tools/jest-to-tape-bridge';
+import { spy, stub } from 'sinon';
+import * as console from 'console';
 
-describe('initialize package.json files', () => {
+describe('initialize package.json files', ({ it, beforeEach }) => {
   beforeEach(() => {
     getAllPackageJsons().clear();
   });
 
-  it('should find all package.json files', () => {
+  it('should find all package.json files', ({ expect }) => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
     searchPackageJsonFiles(baseDir, []);
     expect(getAllPackageJsons().size).toEqual(7);
@@ -104,7 +107,7 @@ describe('initialize package.json files', () => {
     expect(fakeFilePJList[0].filename).toEqual(moduleBsubmoduleBPJ);
   });
 
-  it('should ignore package.json files from ignored patterns', () => {
+  it('should ignore package.json files from ignored patterns', ({ expect }) => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
     searchPackageJsonFiles(baseDir, ['**/moduleA/**']);
@@ -137,7 +140,9 @@ describe('initialize package.json files', () => {
     );
   });
 
-  it('should return empty array when no package.json are in the DB or none exist in the file tree', () => {
+  it('should return empty array when no package.json are in the DB or none exist in the file tree', ({
+    expect,
+  }) => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
     expect(getAllPackageJsons().size).toEqual(0);
@@ -152,17 +157,17 @@ describe('initialize package.json files', () => {
     ).toHaveLength(0);
   });
 
-  it('should log error when cannot access baseDir', () => {
+  it('should log error when cannot access baseDir', ({ expect }) => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
-    console.error = jest.fn();
+    const errorSpy = spy(console, 'error', ['get']);
 
-    jest.spyOn(PackageJsonsByBaseDir, 'walkDirectory').mockImplementation(dir => {
+    stub(PackageJsonsByBaseDir, 'walkDirectory').callsFake(dir => {
       throw Error(`Cannot access ${dir}`);
     });
 
     searchPackageJsonFiles(baseDir, ['']);
-    expect(console.error).toHaveBeenCalledWith(
+    expect(errorSpy).toHaveBeenCalledWith(
       `Error while searching for package.json files: Error: Cannot access ${baseDir}`,
     );
   });

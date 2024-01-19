@@ -20,7 +20,7 @@
 import { check } from '../tools';
 import { rule } from './';
 import path from 'path';
-import { getAllPackageJsons, searchPackageJsonFiles } from '@sonar/jsts';
+import { getAllPackageJsons, searchPackageJsonFiles } from '../../../src';
 
 const sonarId = path.basename(__dirname);
 

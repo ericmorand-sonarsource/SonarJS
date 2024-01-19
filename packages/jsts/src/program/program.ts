@@ -37,7 +37,7 @@ import {
   readFileSync,
   toUnixPath,
   warn,
-} from '@sonar/shared';
+} from '../../../shared/src';
 import tmp from 'tmp';
 import { promisify } from 'util';
 import fs from 'fs/promises';

@@ -20,9 +20,10 @@
 import { Issue } from '../../../src/linter/issues';
 import { decodeSonarRuntime } from '../../../src/linter/issues/decode';
 import { SONAR_RUNTIME } from '../../../src/linter/parameters';
+import { describe } from '../../../../../tools/jest-to-tape-bridge';
 
-describe('decodeSonarRuntime', () => {
-  it('should decode sonar-runtime-like issues', () => {
+describe('decodeSonarRuntime', ({ it }) => {
+  it('should decode sonar-runtime-like issues', ({ expect }) => {
     const rule = { meta: { schema: [{ enum: [SONAR_RUNTIME] }] } } as any;
     const encoded = {
       ruleId: 'fake',
@@ -38,7 +39,7 @@ describe('decodeSonarRuntime', () => {
     });
   });
 
-  it('should fail decoding malformed sonar-runtime-like issues', () => {
+  it('should fail decoding malformed sonar-runtime-like issues', ({ expect }) => {
     const rule = { meta: { schema: [{ enum: [SONAR_RUNTIME] }] } } as any;
     const malformed = {
       ruleId: 'fake',
@@ -49,7 +50,9 @@ describe('decodeSonarRuntime', () => {
     );
   });
 
-  it('should return undecoded issues from a rule that does not activate sonar-runtime', () => {
+  it('should return undecoded issues from a rule that does not activate sonar-runtime', ({
+    expect,
+  }) => {
     const issue = { ruleId: 'fake', line: 42 } as Issue;
     expect(decodeSonarRuntime({} as any, issue)).toEqual(issue);
   });

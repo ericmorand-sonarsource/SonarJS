@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { setContext, toUnixPath, APIError } from '@sonar/shared';
+import { setContext, toUnixPath, APIError } from '../../../shared/src';
 import {
   initializeLinter,
   RuleConfig,
@@ -30,9 +30,11 @@ import {
 } from '../../src';
 import { jsTsInput, parseJavaScriptSourceFile } from '../tools';
 import { Linter, Rule } from 'eslint';
-describe('analyzeJSTS', () => {
+import { describe } from '../../../../tools/jest-to-tape-bridge';
+
+describe('analyzeJSTS', ({ beforeEach, it }) => {
   beforeEach(() => {
-    jest.resetModules();
+    // jest.resetModules();
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
@@ -41,7 +43,7 @@ describe('analyzeJSTS', () => {
     });
   });
 
-  it('should fail on uninitialized linter', async () => {
+  it('should fail on uninitialized linter', async ({ expect }) => {
     const input = {} as any;
     const language = 'js';
     expect(() => analyzeJSTS(input, language)).toThrow(
@@ -49,7 +51,9 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze JavaScript code with the given linter', async () => {
+  it('should analyze JavaScript code with the given linter', async ({ expect }) => {
+    console.log('EXPECT', expect);
+
     const rules = [
       { key: 'prefer-default-last', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -77,7 +81,7 @@ describe('analyzeJSTS', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should analyze TypeScript code with the given linter', async () => {
+  it('should analyze TypeScript code with the given linter', async ({ expect }) => {
     const rules = [
       { key: 'bool-param-default', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -96,6 +100,8 @@ describe('analyzeJSTS', () => {
       language,
     ) as JsTsAnalysisOutput;
 
+    console.log('ISSUE', issue, issues);
+
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'bool-param-default',
@@ -104,7 +110,7 @@ describe('analyzeJSTS', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should analyze Vue.js code', async () => {
+  it('should analyze Vue.js code', async ({ expect }) => {
     const rules = [
       { key: 'sonar-no-dupe-keys', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -123,7 +129,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze Vue.js code with type checks', async () => {
+  it('should analyze Vue.js code with type checks', async ({ expect }) => {
     const rules = [
       { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -143,7 +149,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze main files', async () => {
+  it('should analyze main files', async ({ expect }) => {
     const rules = [
       { key: 'prefer-promise-shorthand', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-same-argument-assert', configurations: [], fileTypeTarget: ['TEST'] },
@@ -162,7 +168,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze test files', async () => {
+  it('should analyze test files', async ({ expect }) => {
     const rules = [
       { key: 'no-with', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-same-argument-assert', configurations: [], fileTypeTarget: ['TEST'] },
@@ -186,7 +192,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze main and test files', async () => {
+  it('should analyze main and test files', async ({ expect }) => {
     const rules = [
       { key: 'no-throw-literal', configurations: [], fileTypeTarget: ['MAIN', 'TEST'] },
       { key: 'no-exclusive-tests', configurations: [], fileTypeTarget: ['TEST'] },
@@ -207,7 +213,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze shebang files', async () => {
+  it('should analyze shebang files', async ({ expect }) => {
     const rules = [
       { key: 'object-shorthand', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -226,7 +232,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze BOM files', async () => {
+  it('should analyze BOM files', async ({ expect }) => {
     const rules = [
       { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -245,7 +251,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze file contents', async () => {
+  it('should analyze file contents', async ({ expect }) => {
     const rules = [
       { key: 'prefer-template', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -265,7 +271,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze using TSConfig', async () => {
+  it('should analyze using TSConfig', async ({ expect }) => {
     const rules = [
       { key: 'no-useless-intersection', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -285,7 +291,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze using TypeScript program', async () => {
+  it('should analyze using TypeScript program', async ({ expect }) => {
     const rules = [
       { key: 'no-array-delete', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -307,7 +313,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should succeed with types using tsconfig with path aliases', async () => {
+  it('should succeed with types using tsconfig with path aliases', async ({ expect }) => {
     const rules = [
       { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -329,7 +335,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should fail with types using tsconfig without paths aliases', async () => {
+  it('should fail with types using tsconfig without paths aliases', async ({ expect }) => {
     const rules = [
       { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -351,7 +357,9 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('different tsconfig module resolution affects files included in program', async () => {
+  it('different tsconfig module resolution affects files included in program', async ({
+    expect,
+  }) => {
     const rules = [
       { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -431,7 +439,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze using type information', async () => {
+  it('should analyze using type information', async ({ expect }) => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
@@ -457,7 +465,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should report issues', async () => {
+  it('should report issues', async ({ expect }) => {
     const rules = [
       { key: 'no-octal', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -481,7 +489,7 @@ describe('analyzeJSTS', () => {
     ]);
   });
 
-  it('should report secondary locations', async () => {
+  it('should report secondary locations', async ({ expect }) => {
     const rules = [
       { key: 'destructuring-assignment-syntax', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -504,7 +512,7 @@ describe('analyzeJSTS', () => {
     ]);
   });
 
-  it('should report quick fixes', async () => {
+  it('should report quick fixes', async ({ expect }) => {
     const rules = [
       { key: 'no-unused-function-argument', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -548,7 +556,7 @@ describe('analyzeJSTS', () => {
     ]);
   });
 
-  it('should compute metrics on main files', async () => {
+  it('should compute metrics on main files', async ({ expect }) => {
     const rules = [] as RuleConfig[];
     initializeLinter(rules);
 
@@ -792,7 +800,7 @@ describe('analyzeJSTS', () => {
     });
   });
 
-  it('should compute metrics on test files', async () => {
+  it('should compute metrics on test files', async ({ expect }) => {
     const rules = [] as RuleConfig[];
     initializeLinter(rules);
 
@@ -839,7 +847,7 @@ describe('analyzeJSTS', () => {
     });
   });
 
-  it('should compute metrics in SonarLint context', async () => {
+  it('should compute metrics in SonarLint context', async ({ expect }) => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
@@ -866,7 +874,7 @@ describe('analyzeJSTS', () => {
     });
   });
 
-  it('should measure analysis duration', async () => {
+  it('should measure analysis duration', async ({ expect }) => {
     const rules = [
       { key: 'no-extra-smi', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-duplicate-string', configurations: [], fileTypeTarget: ['MAIN'] },
@@ -877,15 +885,13 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(__dirname, 'fixtures', 'measure.js');
     const language = 'js';
 
-    const {
-      perf: { parseTime, analysisTime },
-    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
-    expect(parseTime).toBeGreaterThan(0);
-    expect(analysisTime).toBeGreaterThan(0);
+    const { perf } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
+    expect(perf?.parseTime).toBeGreaterThan(0);
+    expect(perf?.analysisTime).toBeGreaterThan(0);
   });
 
-  it('should return parsing errors', async () => {
-    const rules = [];
+  it('should return parsing errors', async ({ expect }) => {
+    const rules: Array<RuleConfig> = [];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'parsing-error.js');
@@ -896,7 +902,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('package.json should be available in rule context', async () => {
+  it('package.json should be available in rule context', async ({ expect }) => {
     const baseDir = path.join(__dirname, 'fixtures', 'package-json');
     searchPackageJsonFiles(baseDir, []);
 

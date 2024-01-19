@@ -19,7 +19,7 @@
  */
 import path from 'path';
 import { PackageJsons } from './project-package-json';
-import { toUnixPath } from '@sonar/shared';
+import { toUnixPath } from '../../../../shared/src';
 import { PackageJson } from 'type-fest';
 
 const DefinitelyTyped = '@types/';

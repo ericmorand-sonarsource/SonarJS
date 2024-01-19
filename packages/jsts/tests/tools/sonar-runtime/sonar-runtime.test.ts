@@ -25,7 +25,7 @@ import {
 import { parseTypeScriptSourceFile } from '../helpers';
 import path from 'path';
 import { readdir } from 'fs/promises';
-import { fileReadable } from '@sonar/shared';
+import { fileReadable } from '../../../shared/src';
 
 /**
  * Detects missing secondary location support for rules using secondary locations.

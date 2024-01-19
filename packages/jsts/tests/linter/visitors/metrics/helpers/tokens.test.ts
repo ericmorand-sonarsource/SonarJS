@@ -21,9 +21,10 @@ import { extractTokensAndComments } from '../../../../../src/linter/visitors/met
 import { AST } from 'vue-eslint-parser';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../tools';
+import { describe } from '../../../../../../../tools/jest-to-tape-bridge';
 
-describe('extractTokensAndComments', () => {
-  it('should extract tokens and comments', async () => {
+describe('extractTokensAndComments', ({ it }) => {
+  it('should extract tokens and comments', async ({ expect }) => {
     const filePath = path.join(__dirname, './fixtures/tokens.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath, []);
     const { tokens, comments } = parseTokensAndComments(extractTokensAndComments(sourceCode));
@@ -31,7 +32,7 @@ describe('extractTokensAndComments', () => {
     expect(comments).toEqual(['multi-line', 'single-line']);
   });
 
-  it('should extract tokens and comments from Vue files', async () => {
+  it('should extract tokens and comments from Vue files', async ({ expect }) => {
     const filePath = path.join(__dirname, './fixtures/tokens.vue');
     const sourceCode = await parseJavaScriptSourceFile(filePath, []);
     const { tokens, comments } = parseTokensAndComments(extractTokensAndComments(sourceCode));

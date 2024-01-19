@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { setContext } from '@sonar/shared';
+import { setContext } from '../../../../shared/src';
 import { createLinterConfig, RuleConfig } from '../../../src/linter';
+import { describe } from '../../../../../tools/jest-to-tape-bridge';
 
-describe('createLinterConfig', () => {
+describe('createLinterConfig', ({ beforeEach, it }) => {
   beforeEach(() => {
     setContext({
       workDir: '/tmp/dir',
@@ -31,7 +32,7 @@ describe('createLinterConfig', () => {
     });
   });
 
-  it('should enable environments', () => {
+  it('should enable environments', ({ expect }) => {
     const { env } = createLinterConfig([], new Map(), ['node', 'jquery']);
     expect(env).toEqual(
       expect.objectContaining({
@@ -41,7 +42,7 @@ describe('createLinterConfig', () => {
     );
   });
 
-  it('should enable globals', () => {
+  it('should enable globals', ({ expect }) => {
     const { globals } = createLinterConfig([], new Map(), [], ['_', '$']);
     expect(globals).toEqual(
       expect.objectContaining({
@@ -51,7 +52,7 @@ describe('createLinterConfig', () => {
     );
   });
 
-  it('should enable rules', () => {
+  it('should enable rules', ({ expect }) => {
     const inputRules: RuleConfig[] = [{ key: 'foo', configurations: [], fileTypeTarget: ['MAIN'] }];
     const linterRules = new Map<string, Rule.RuleModule>([
       ['foo', { module: 42 } as unknown as Rule.RuleModule],
@@ -65,7 +66,7 @@ describe('createLinterConfig', () => {
     );
   });
 
-  it('should enable internal custom rules by default', () => {
+  it('should enable internal custom rules by default', ({ expect }) => {
     const { rules } = createLinterConfig([], new Map());
     expect(rules).toEqual({
       'internal-cognitive-complexity': ['error', 'metric'],
@@ -73,7 +74,7 @@ describe('createLinterConfig', () => {
     });
   });
 
-  it('should not enable internal custom rules in SonarLint context', () => {
+  it('should not enable internal custom rules in SonarLint context', ({ expect }) => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,

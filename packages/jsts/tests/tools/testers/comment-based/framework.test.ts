@@ -19,7 +19,7 @@
  */
 import * as path from 'path';
 import { extractExpectations } from './framework';
-import { readFile } from '@sonar/shared';
+import { readFile } from '../../../../../shared/src';
 
 describe('Comment-based Testing Framework', () => {
   const baseDir = path.resolve(`${__dirname}/fixtures`);

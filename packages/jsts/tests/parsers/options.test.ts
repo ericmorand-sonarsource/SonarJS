@@ -20,9 +20,10 @@
 import { buildParserOptions } from '../../src/parsers';
 import { createAndSaveProgram, getProgramById } from '../../src/program';
 import path from 'path';
+import { describe } from '../../../../tools/jest-to-tape-bridge';
 
-describe('buildParserOptions', () => {
-  it('should build parser options', () => {
+describe('buildParserOptions', ({ it }) => {
+  it('should build parser options', ({ expect }) => {
     const usingBabel = false;
     const filePath = '/tmp/dir';
     const parser = '/some/parser';
@@ -45,7 +46,7 @@ describe('buildParserOptions', () => {
     });
   });
 
-  it('should include Babel parser options', () => {
+  it('should include Babel parser options', ({ expect }) => {
     const filePath = '/tmp/dir';
     const usingBabel = true;
     const parserOptions = buildParserOptions({ filePath }, usingBabel);
@@ -62,7 +63,7 @@ describe('buildParserOptions', () => {
     );
   });
 
-  it('should build parser options with TSConfig', () => {
+  it('should build parser options with TSConfig', ({ expect }) => {
     const tsConfigs = ['/some/tsconfig'];
     const filePath = '/tmp/dir';
     expect(buildParserOptions({ filePath, project: tsConfigs })).toEqual(
@@ -72,11 +73,11 @@ describe('buildParserOptions', () => {
     );
   });
 
-  it('should build parser options with TypeScript program', () => {
+  it('should build parser options with TypeScript program', ({ expect }) => {
     const tsConfig = path.join(__dirname, 'fixtures', 'options', 'tsconfig.json');
 
     const { programId } = createAndSaveProgram(tsConfig);
-    const program = getProgramById(programId);
+    const program = getProgramById(programId!);
 
     const filePath = '/tmp/dir';
     expect(buildParserOptions({ filePath, programs: [program] })).toEqual(

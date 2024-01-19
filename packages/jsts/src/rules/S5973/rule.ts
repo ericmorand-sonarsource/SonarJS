@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { Mocha, getFullyQualifiedName, isIdentifier, isMethodInvocation } from '../helpers';
 import * as estree from 'estree';
-import { getDependencies } from '@sonar/jsts';
+import { getDependencies } from '../../../src';
 
 export const rule: Rule.RuleModule = {
   meta: {

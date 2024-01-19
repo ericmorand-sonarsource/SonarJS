@@ -18,21 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { hasSonarRuntimeOption, SONAR_RUNTIME } from '../../../src/linter/parameters';
+import { describe } from '../../../../../tools/jest-to-tape-bridge';
 
-describe('hasSonarRuntimeOption', () => {
-  it('should return true for a rule that has `sonar-runtime` option', () => {
+describe('hasSonarRuntimeOption', ({ it }) => {
+  it('should return true for a rule that has `sonar-runtime` option', ({ expect }) => {
     expect(
       hasSonarRuntimeOption({ meta: { schema: [{ enum: [SONAR_RUNTIME] }] } } as any, 'fake'),
     ).toEqual(true);
   });
 
-  it('should return false for a rule that has not `sonar-runtime` option', () => {
+  it('should return false for a rule that has not `sonar-runtime` option', ({ expect }) => {
     expect(hasSonarRuntimeOption({ meta: { schema: [{ enum: [42] }] } } as any, 'fake')).toEqual(
       false,
     );
   });
 
-  it('should return false for a rule without any schema', () => {
+  it('should return false for a rule without any schema', ({ expect }) => {
     expect(hasSonarRuntimeOption({ meta: {} } as any, 'fake')).toEqual(false);
   });
 });

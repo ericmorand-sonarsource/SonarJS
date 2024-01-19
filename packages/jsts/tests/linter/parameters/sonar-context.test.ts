@@ -18,21 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { hasSonarContextOption, SONAR_CONTEXT } from '../../../src/linter/parameters';
+import { describe } from '../../../../../tools/jest-to-tape-bridge';
 
-describe('hasSonarContextOption', () => {
-  it('should return true for a rule that has `sonar-context` option', () => {
+describe('hasSonarContextOption', ({ it }) => {
+  it('should return true for a rule that has `sonar-context` option', ({ expect }) => {
     expect(
       hasSonarContextOption({ meta: { schema: [{ title: SONAR_CONTEXT }] } } as any, 'fake'),
     ).toEqual(true);
   });
 
-  it('should return false for a rule that has not `sonar-context` option', () => {
+  it('should return false for a rule that has not `sonar-context` option', ({ expect }) => {
     expect(hasSonarContextOption({ meta: { schema: [{ title: 42 }] } } as any, 'fake')).toEqual(
       false,
     );
   });
 
-  it('should return false for a rule without any schema', () => {
+  it('should return false for a rule without any schema', ({ expect }) => {
     expect(hasSonarContextOption({ meta: {} } as any, 'fake')).toEqual(false);
   });
 });

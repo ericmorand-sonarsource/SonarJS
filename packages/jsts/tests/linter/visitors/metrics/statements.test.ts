@@ -20,9 +20,10 @@
 import { countStatements } from '../../../../src/linter/visitors/metrics/statements';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../tools';
+import { describe } from '../../../../../../tools/jest-to-tape-bridge';
 
-describe('countStatements', () => {
-  it('should count the number of statements', async () => {
+describe('countStatements', ({ it }) => {
+  it('should count the number of statements', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'statements.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const statements = countStatements(sourceCode);

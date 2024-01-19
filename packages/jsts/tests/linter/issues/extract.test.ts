@@ -24,9 +24,10 @@ import {
 } from '../../../src/linter/issues';
 import { rule as cognitiveComplexityRule } from '../../../src/linter/custom-rules/cognitive-complexity';
 import { rule as symbolHighlightingRule } from '../../../src/linter/custom-rules/symbol-highlighting';
+import { describe } from '../../../../../tools/jest-to-tape-bridge';
 
-describe('extract', () => {
-  it('should extract highlighted symbols', () => {
+describe('extract', ({ it }) => {
+  it('should extract highlighted symbols', ({ expect }) => {
     const issues: Issue[] = [
       {
         ruleId: symbolHighlightingRule.ruleId,
@@ -45,11 +46,11 @@ describe('extract', () => {
     });
   });
 
-  it('should return an empty array of highlighted symbols', () => {
+  it('should return an empty array of highlighted symbols', ({ expect }) => {
     expect(extractHighlightedSymbols([])).toEqual([]);
   });
 
-  it('should extract cognitive complexity', () => {
+  it('should extract cognitive complexity', ({ expect }) => {
     const issues: Issue[] = [
       {
         ruleId: cognitiveComplexityRule.ruleId,
@@ -62,7 +63,7 @@ describe('extract', () => {
     expect(extractCognitiveComplexity(issues)).toEqual(42);
   });
 
-  it('should return undefined on NaN cognitive complexity', () => {
+  it('should return undefined on NaN cognitive complexity', ({ expect }) => {
     const issues: Issue[] = [
       {
         ruleId: cognitiveComplexityRule.ruleId,
@@ -75,11 +76,11 @@ describe('extract', () => {
     expect(extractCognitiveComplexity(issues)).toEqual(undefined);
   });
 
-  it('should return undefined on missing cognitive complexity', () => {
+  it('should return undefined on missing cognitive complexity', ({ expect }) => {
     expect(extractCognitiveComplexity([])).toEqual(undefined);
   });
 
-  it('should preserve non-extracted issues', () => {
+  it('should preserve non-extracted issues', ({ expect }) => {
     const issues: Issue[] = [
       {
         ruleId: symbolHighlightingRule.ruleId,

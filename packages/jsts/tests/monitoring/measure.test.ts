@@ -19,9 +19,10 @@
  */
 import { hrtime } from 'process';
 import { measureDuration } from '../../src/monitoring';
+import { describe } from '../../../../tools/jest-to-tape-bridge';
 
-describe('measureDuration', () => {
-  it('should measure the running time of a function', () => {
+describe('measureDuration', ({ it }) => {
+  it('should measure the running time of a function', ({ expect }) => {
     const spy = jest.spyOn(hrtime, 'bigint');
 
     const f = () => 'done';

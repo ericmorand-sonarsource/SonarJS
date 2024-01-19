@@ -20,9 +20,10 @@
 import path from 'path';
 import { computeMetrics } from '../../../../src/linter/visitors/metrics';
 import { parseJavaScriptSourceFile } from '../../../tools';
+import { describe } from '../../../../../../tools/jest-to-tape-bridge';
 
-describe('computeMetrics', () => {
-  it('should compute metrics', async () => {
+describe('computeMetrics', ({ it }) => {
+  it('should compute metrics', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'compute.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const metrics = computeMetrics(sourceCode, true, 42);

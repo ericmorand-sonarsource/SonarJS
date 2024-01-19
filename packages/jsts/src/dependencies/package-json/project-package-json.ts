@@ -19,7 +19,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { toUnixPath, debug, error, readFileSync } from '@sonar/shared';
+import { toUnixPath, debug, error, readFileSync } from '../../../../shared/src';
 import { PackageJson as PJ } from 'type-fest';
 import { Minimatch } from 'minimatch';
 

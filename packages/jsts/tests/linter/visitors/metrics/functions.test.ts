@@ -20,9 +20,10 @@
 import { countFunctions } from '../../../../src/linter/visitors/metrics/functions';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../tools';
+import { describe } from '../../../../../../tools/jest-to-tape-bridge';
 
-describe('countFunctions', () => {
-  it('should count the number of functions', async () => {
+describe('countFunctions', ({ it }) => {
+  it('should count the number of functions', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'functions.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const statements = countFunctions(sourceCode);

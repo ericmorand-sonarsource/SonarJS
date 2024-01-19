@@ -20,7 +20,8 @@
 import { buildSourceCode } from '../../src/builders';
 import { JsTsAnalysisInput } from '../../src/analysis';
 import path from 'path';
-import { JsTsLanguage, readFile } from '@sonar/shared';
+import { JsTsLanguage, readFile } from '../../../shared/src';
+import { describe } from '../../../../tools/jest-to-tape-bridge';
 
 const cases = [
   { syntax: 'ECMAScript 2015', fixture: 'es2015.js', language: 'js' },
@@ -37,17 +38,21 @@ const cases = [
   { syntax: 'TypeScript', fixture: 'typescript.ts', language: 'ts' },
 ];
 
-describe('ESLint-based parsers', () => {
-  test.each(cases)('should parse $syntax syntax', async ({ fixture, language }) => {
-    const filePath = path.join(__dirname, 'fixtures', 'eslint', fixture);
-    const fileContent = await readFile(filePath);
-    const fileType = 'MAIN';
+describe('ESLint-based parsers', ({ it }) => {
+  for (const testCase of cases) {
+    const { fixture, language } = testCase;
 
-    const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
-    const sourceCode = buildSourceCode(input, language as JsTsLanguage);
+    it('should parse $syntax syntax', async ({ expect }) => {
+      const filePath = path.join(__dirname, 'fixtures', 'eslint', fixture);
+      const fileContent = await readFile(filePath);
+      const fileType = 'MAIN';
 
-    expect(sourceCode).toBeDefined();
-    expect(sourceCode.ast).toBeDefined();
-    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
-  });
+      const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
+      const sourceCode = buildSourceCode(input, language as JsTsLanguage);
+
+      expect(sourceCode).toBeDefined();
+      expect(sourceCode.ast).toBeDefined();
+      expect(sourceCode.ast.body.length).toBeGreaterThan(0);
+    });
+  }
 });

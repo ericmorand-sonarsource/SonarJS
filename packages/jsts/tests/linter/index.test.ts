@@ -18,16 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { setContext } from '@sonar/shared';
-import { initializeLinter, getLinter, LinterWrapper } from '@sonar/jsts';
+import { setContext } from '../../../shared/src';
+import { initializeLinter, getLinter, LinterWrapper } from '../../../jsts/src';
 import { parseJavaScriptSourceFile } from '../tools';
+import { describe } from '../../../../tools/jest-to-tape-bridge';
 
-describe('initializeLinter', () => {
+describe('initializeLinter', ({ beforeEach, it }) => {
   beforeEach(() => {
     jest.resetModules();
   });
 
-  it('should initialize the linter wrapper', async () => {
+  it('should initialize the linter wrapper', async ({ expect }) => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
@@ -64,7 +65,7 @@ describe('initializeLinter', () => {
     );
   });
 
-  it('should load rule bundles', async () => {
+  it('should load rule bundles', async ({ expect }) => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,

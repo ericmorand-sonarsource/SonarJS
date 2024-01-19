@@ -20,9 +20,10 @@
 import { rules as mapping } from '../../src/rules';
 import fs from 'fs';
 import path from 'path';
+import { describe } from '../../../../tools/jest-to-tape-bridge';
 
-describe('index', () => {
-  it('should map keys to rules definitions', () => {
+describe('index', ({ it }) => {
+  it('should map keys to rules definitions', ({ expect }) => {
     const ruleFolder = path.join(__dirname, '../../src/rules');
     const sonarKeys = fs.readdirSync(ruleFolder).filter(name => /^S\d+/.test(name));
     const mappedRules = new Map(Object.values(mapping).map(rule => [rule, true]));

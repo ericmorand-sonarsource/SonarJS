@@ -20,11 +20,12 @@
 import { findExecutableLines } from '../../../../src/linter/visitors/metrics/executable-lines';
 import path from 'path';
 import { parseTypeScriptSourceFile } from '../../../tools';
+import { describe } from '../../../../../../tools/jest-to-tape-bridge';
 
-describe('findExecutableLines', () => {
-  it('should find the number of executable lines', async () => {
+describe('findExecutableLines', ({ it }) => {
+  it('should find the number of executable lines', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'executable-lines.ts');
-    const tsConfigs = [];
+    const tsConfigs: Array<any> = [];
     const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
     const statements = findExecutableLines(sourceCode);
     expect(statements).toEqual([

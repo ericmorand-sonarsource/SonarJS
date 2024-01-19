@@ -20,9 +20,10 @@
 import { visitAndCountIf } from '../../../../../src/linter/visitors/metrics/helpers';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../tools';
+import { describe } from '../../../../../../../tools/jest-to-tape-bridge';
 
-describe('visitAndCountIf', () => {
-  it('should count matching nodes', async () => {
+describe('visitAndCountIf', ({ it }) => {
+  it('should count matching nodes', async ({ expect }) => {
     const filePath = path.join(__dirname, './fixtures/counter.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath, []);
     const count = visitAndCountIf(sourceCode, node => node.type === 'CallExpression');

@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { setContext } from '@sonar/shared';
+import { setContext } from '../../../../shared/src';
 import { extendRuleConfig, RuleConfig } from '../../../src/linter/config';
 import { SONAR_CONTEXT, SONAR_RUNTIME } from '../../../src/linter/parameters';
+import { describe } from '../../../../../tools/jest-to-tape-bridge';
 
-describe('extendRuleConfig', () => {
-  it('should include `sonar-runtime`', () => {
+describe('extendRuleConfig', ({ it }) => {
+  it('should include `sonar-runtime`', ({ expect }) => {
     const ruleModule = {
       meta: { schema: [{ enum: SONAR_RUNTIME }] },
     } as unknown as Rule.RuleModule;
@@ -37,7 +38,7 @@ describe('extendRuleConfig', () => {
     expect(config).toEqual([42, SONAR_RUNTIME]);
   });
 
-  it('should include the context', () => {
+  it('should include the context', ({ expect }) => {
     const ctx = {
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
@@ -59,7 +60,7 @@ describe('extendRuleConfig', () => {
     expect(config).toEqual([42, ctx]);
   });
 
-  it('should include the context and `sonar-runtime`', () => {
+  it('should include the context and `sonar-runtime`', ({ expect }) => {
     const ctx = {
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,

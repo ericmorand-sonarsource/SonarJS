@@ -21,9 +21,10 @@ import { Linter, SourceCode } from 'eslint';
 import { convertMessage } from '../../../src/linter/issues';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../tools';
+import { describe } from '../../../../../tools/jest-to-tape-bridge';
 
-describe('convertMessage', () => {
-  it('should convert an ESLint message into a Sonar issue', async () => {
+describe('convertMessage', ({ it }) => {
+  it('should convert an ESLint message into a Sonar issue', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'convert.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -60,7 +61,7 @@ describe('convertMessage', () => {
     });
   });
 
-  it('should return null when an ESLint message is missing a rule id', () => {
+  it('should return null when an ESLint message is missing a rule id', ({ expect }) => {
     console.error = jest.fn();
     expect(convertMessage({} as SourceCode, {} as Linter.LintMessage)).toEqual(null);
     expect(console.error).toHaveBeenCalledWith("Illegal 'null' ruleId for eslint issue");

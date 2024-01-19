@@ -20,16 +20,17 @@
 import { findNcloc } from '../../../../src/linter/visitors/metrics/ncloc';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../tools';
+import { describe } from '../../../../../../tools/jest-to-tape-bridge';
 
-describe('findNcloc', () => {
-  it('should find the line numbers of code', async () => {
+describe('findNcloc', ({ it }) => {
+  it('should find the line numbers of code', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures/ncloc.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const nloc = findNcloc(sourceCode);
     expect(nloc).toEqual([4, 6, 7, 8, 9, 11]);
   });
 
-  it('should find the line numbers of code in Vue.js', async () => {
+  it('should find the line numbers of code in Vue.js', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures/ncloc.vue');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const nloc = findNcloc(sourceCode);

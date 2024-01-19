@@ -19,9 +19,10 @@
  */
 import * as estree from 'estree';
 import { convertLocation } from '../../../../../src/linter/visitors/metrics/helpers';
+import { describe } from '../../../../../../../tools/jest-to-tape-bridge';
 
-describe('convertLocation', () => {
-  it('should convert an ESTree location', () => {
+describe('convertLocation', ({ it }) => {
+  it('should convert an ESTree location', ({ expect }) => {
     const location: estree.SourceLocation = {
       start: {
         line: 42,

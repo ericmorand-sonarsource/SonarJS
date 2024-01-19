@@ -20,9 +20,10 @@
 import { countClasses } from '../../../../src/linter/visitors/metrics/classes';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../tools';
+import { describe } from '../../../../../../tools/jest-to-tape-bridge';
 
-describe('countClasses', () => {
-  it('should count the number of classes', async () => {
+describe('countClasses', ({ it }) => {
+  it('should count the number of classes', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'classes.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const classes = countClasses(sourceCode);

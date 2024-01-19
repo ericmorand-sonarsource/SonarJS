@@ -24,9 +24,10 @@ import { rule as noExclusiveTests } from '../../../src/rules/S6426';
 import { transformFixes } from '../../../src/linter/quickfixes';
 import { rule as noEmptyFunction } from '../../../src/rules/S1186';
 import { parseJavaScriptSourceFile } from '../../tools/helpers';
+import { describe } from '../../../../../tools/jest-to-tape-bridge';
 
-describe('transformFixes', () => {
-  it('should transform an ESLint core fix', async () => {
+describe('transformFixes', ({ it }) => {
+  it('should transform an ESLint core fix', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'eslint.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -51,7 +52,7 @@ describe('transformFixes', () => {
     ]);
   });
 
-  it('should transform a SonarJS suggestion', async () => {
+  it('should transform a SonarJS suggestion', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'sonarjs.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -78,7 +79,7 @@ describe('transformFixes', () => {
     ]);
   });
 
-  it('should transform a fix from a decorated rule', async () => {
+  it('should transform a fix from a decorated rule', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'decorated.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -105,7 +106,7 @@ describe('transformFixes', () => {
     ]);
   });
 
-  it('should ignore an undeclared rule quick fix', async () => {
+  it('should ignore an undeclared rule quick fix', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'undeclared.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -120,7 +121,7 @@ describe('transformFixes', () => {
     expect(quickFixes).toEqual([]);
   });
 
-  it('should not return quick fixes for a fixless rule', async () => {
+  it('should not return quick fixes for a fixless rule', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'fixless.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 

@@ -20,6 +20,7 @@
 import { findCommentLines } from '../../../../src/linter/visitors/metrics/comments';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../tools/helpers';
+import { describe } from '../../../../../../tools/jest-to-tape-bridge';
 
 const cases = [
   {
@@ -60,14 +61,15 @@ const cases = [
   },
 ];
 
-describe('findCommentLines', () => {
-  test.each(cases)(
-    'should find comment lines $given',
-    async ({ fixture, ignoreHeader, expectedLines }) => {
+describe('findCommentLines', ({ it }) => {
+  for (const testCase of cases) {
+    it('', async ({ expect }) => {
+      const { fixture, ignoreHeader, expectedLines } = testCase;
+
       const filePath = path.join(__dirname, 'fixtures', 'comments', `${fixture}.js`);
       const sourceCode = await parseJavaScriptSourceFile(filePath);
       const { commentLines: actualLines } = findCommentLines(sourceCode, ignoreHeader);
       expect(actualLines).toEqual(expectedLines);
-    },
-  );
+    });
+  }
 });

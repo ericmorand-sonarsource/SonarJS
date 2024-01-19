@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 import { rule } from './';
 import path from 'path';
-import { getAllPackageJsons, searchPackageJsonFiles } from '@sonar/jsts';
+import { getAllPackageJsons, searchPackageJsonFiles } from '../../../src';
 
 //reset and search package.json files in rule dir
 getAllPackageJsons().clear();

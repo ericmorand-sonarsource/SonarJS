@@ -1,0 +1,10 @@
+import './classes.test';
+import './comments.test';
+import './compute.test';
+import './cyclomatic-complexity.test';
+import './executable-lines.test';
+import './functions.test';
+import './helpers';
+import './ncloc.test';
+import './nosonar.test';
+import './statements.test';

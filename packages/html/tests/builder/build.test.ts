@@ -20,15 +20,20 @@
 import { join } from 'path';
 import { parseHTML } from '../../src/parser';
 import { embeddedInput } from '../../../jsts/tests/tools';
-import { buildSourceCodes } from '@sonar/jsts';
+import { buildSourceCodes } from '../../../jsts/src';
+import tape from 'tape';
 
-describe('buildSourceCodes()', () => {
+const describe = tape;
+
+describe('buildSourceCodes()', ({ test: it }) => {
   const fixturesPath = join(__dirname, 'fixtures');
-  it('should build source codes from an HTML file', async () => {
+  it('should build source codes from an HTML file', async ({ same, end }) => {
     const filePath = join(fixturesPath, 'multiple.html');
     const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), parseHTML);
-    expect(sourceCodes).toHaveLength(2);
-    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 4, column: 8 });
-    expect(sourceCodes[1].ast.loc.start).toEqual({ line: 8, column: 8 });
+    same(sourceCodes.length, 2);
+    same(sourceCodes[0].ast.loc.start, { line: 4, column: 8 });
+    same(sourceCodes[1].ast.loc.start, { line: 8, column: 8 });
+
+    end();
   });
 });

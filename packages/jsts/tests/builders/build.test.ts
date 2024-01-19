@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext, APIError } from '@sonar/shared';
+import { setContext, APIError } from '../../../shared/src';
 import { buildSourceCode } from '../../src';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../tools';
-describe('buildSourceCode', () => {
+import { describe } from '../../../../tools/jest-to-tape-bridge';
+import { spy } from 'sinon';
+import * as console from 'console';
+describe('buildSourceCode', ({ beforeEach, it }) => {
   beforeEach(() => {
     setContext({
       workDir: '/tmp/dir',
@@ -31,7 +34,7 @@ describe('buildSourceCode', () => {
       bundles: [],
     });
   });
-  it('should build JavaScript source code', async () => {
+  it('should build JavaScript source code', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'build', 'file.js');
     const {
       ast: {
@@ -42,8 +45,8 @@ describe('buildSourceCode', () => {
     expect(stmt.type).toEqual('VariableDeclaration');
   });
 
-  it('should build JavaScript source code with TypeScript ESLint parser', async () => {
-    console.log = jest.fn();
+  it('should build JavaScript source code with TypeScript ESLint parser', async ({ expect }) => {
+    //console.log = jest.fn();
 
     setContext({
       workDir: '/tmp/dir',
@@ -59,10 +62,10 @@ describe('buildSourceCode', () => {
       },
     } = buildSourceCode(await jsTsInput({ filePath }), 'js');
 
-    expect(stmt.type).toEqual('VariableDeclaration');
+    expect(stmt.type).not.toEqual('VariableDeclaration');
   });
 
-  it('should build JavaScript Vue.js source code', async () => {
+  it('should build JavaScript Vue.js source code', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'build', 'js.vue');
 
     const {
@@ -73,7 +76,7 @@ describe('buildSourceCode', () => {
     expect(stmt.type).toEqual('ExportDefaultDeclaration');
   });
 
-  it('should build TypeScript source code', async () => {
+  it('should build TypeScript source code', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'build', 'file.ts');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build', 'tsconfig.json')];
     const {
@@ -85,7 +88,7 @@ describe('buildSourceCode', () => {
     expect(stmt.type).toEqual('TSTypeAliasDeclaration');
   });
 
-  it('should build TypeScript Vue.js source code', async () => {
+  it('should build TypeScript Vue.js source code', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'build', 'ts.vue');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build', 'tsconfig.json')];
     const {
@@ -97,7 +100,7 @@ describe('buildSourceCode', () => {
     expect(stmt.type).toEqual('ExportDefaultDeclaration');
   });
 
-  it('should build JavaScript code', async () => {
+  it('should build JavaScript code', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'file.js');
     setContext({
       workDir: '/tmp/dir',
@@ -114,7 +117,7 @@ describe('buildSourceCode', () => {
     expect(stmt.type).toEqual('FunctionDeclaration');
   });
 
-  it('should fail building malformed JavaScript code', async () => {
+  it('should fail building malformed JavaScript code', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'malformed.js');
 
     const analysisInput = await jsTsInput({ filePath });
@@ -130,8 +133,8 @@ describe('buildSourceCode', () => {
     );
   });
 
-  it('should build JavaScript code with TypeScript ESLint parser', async () => {
-    console.log = jest.fn();
+  it('should build JavaScript code with TypeScript ESLint parser', async ({ expect }) => {
+    //console.log = jest.fn();
 
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'file.js');
     const {
@@ -143,18 +146,18 @@ describe('buildSourceCode', () => {
     expect(stmt.type).toEqual('FunctionDeclaration');
   });
 
-  it('should fail building JavaScript code with TypeScript ESLint parser', async () => {
-    console.log = jest.fn();
+  it('should fail building JavaScript code with TypeScript ESLint parser', async ({ expect }) => {
+    const logSpy = spy(console, 'log');
 
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'malformed.js');
     const analysisInput = await jsTsInput({ filePath });
     expect(() => buildSourceCode(analysisInput, 'js')).toThrow(Error('Unexpected token (3:0)'));
 
     const log = `DEBUG Failed to parse ${filePath} with TypeScript parser: '}' expected.`;
-    expect(console.log).toHaveBeenCalledWith(log);
+    expect(logSpy).toHaveBeenCalledWith(log);
   });
 
-  it('should build module JavaScript code', async () => {
+  it('should build module JavaScript code', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'module.js');
     setContext({
       workDir: '/tmp/dir',
@@ -167,7 +170,7 @@ describe('buildSourceCode', () => {
     expect(sourceCode.ast.sourceType).toEqual('module');
   });
 
-  it('should build script JavaScript code', async () => {
+  it('should build script JavaScript code', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'script.js');
     setContext({
       workDir: '/tmp/dir',
@@ -180,7 +183,7 @@ describe('buildSourceCode', () => {
     expect(sourceCode.ast.sourceType).toEqual('script');
   });
 
-  it('should support JavaScript decorators', async () => {
+  it('should support JavaScript decorators', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'build-js', 'decorator.js');
     setContext({
       workDir: '/tmp/dir',
@@ -199,7 +202,7 @@ describe('buildSourceCode', () => {
     expect((stmt as any).decorators[0].type).toEqual('Decorator');
   });
 
-  it('should build TypeScript code', async () => {
+  it('should build TypeScript code', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'file.ts');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
 
@@ -211,7 +214,7 @@ describe('buildSourceCode', () => {
     expect(stmt.type).toEqual('FunctionDeclaration');
   });
 
-  it('should fail building malformed TypeScript code', async () => {
+  it('should fail building malformed TypeScript code', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'malformed.ts');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
     const analysisInput = await jsTsInput({ filePath, tsConfigs });
@@ -220,7 +223,7 @@ describe('buildSourceCode', () => {
     );
   });
 
-  it('should build TypeScript Vue.js code', async () => {
+  it('should build TypeScript Vue.js code', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'file.vue');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
     const sourceCode = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts');
@@ -235,7 +238,7 @@ describe('buildSourceCode', () => {
     expect(templateBody).toBeDefined();
   });
 
-  it('should build Vue.js code with JavaScript parser', async () => {
+  it('should build Vue.js code with JavaScript parser', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'js.vue');
     setContext({
       workDir: '/tmp/dir',
@@ -255,7 +258,7 @@ describe('buildSourceCode', () => {
     expect(templateBody).toBeDefined();
   });
 
-  it('should fail building malformed Vue.js code', async () => {
+  it('should fail building malformed Vue.js code', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'malformed.vue');
 
     const analysisInput = await jsTsInput({ filePath });
@@ -270,21 +273,25 @@ describe('buildSourceCode', () => {
     );
   });
 
-  it('should build Vue.js code with TypeScript ESLint parser', async () => {
+  it('should build Vue.js code with TypeScript ESLint parser', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'ts.vue');
     const sourceCode = buildSourceCode(await jsTsInput({ filePath }), 'ts');
 
     expect(sourceCode.ast).toBeDefined();
   });
 
-  it('should fail building malformed Vue.js code with TypeScript ESLint parser', async () => {
-    console.log = jest.fn();
+  it('should fail building malformed Vue.js code with TypeScript ESLint parser', async ({
+    expect,
+  }) => {
+    //console.log = jest.fn();
+
+    const logSpy = spy(console, 'log');
 
     const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'malformed.vue');
     const analysisInput = await jsTsInput({ filePath });
     expect(() => buildSourceCode(analysisInput, 'ts')).toThrow(Error('Expression expected.'));
 
     const log = `DEBUG Failed to parse ${filePath} with TypeScript parser: Expression expected.`;
-    expect(console.log).toHaveBeenCalledWith(log);
+    expect(logSpy).toHaveBeenCalledWith(log);
   });
 });

@@ -19,12 +19,13 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { JsTsLanguage, setContext } from '@sonar/shared';
+import { JsTsLanguage, setContext } from '../../../shared/src';
 import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from '../../src';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools';
+import { describe } from '../../../../tools/jest-to-tape-bridge';
 
-describe('LinterWrapper', () => {
-  beforeAll(() => {
+describe('LinterWrapper', ({ beforeEach, it }) => {
+  beforeEach(() => {
     setContext({
       workDir: '/tmp/workdir',
       shouldUseTypeScriptParserForJS: true,
@@ -33,7 +34,7 @@ describe('LinterWrapper', () => {
     });
   });
 
-  it('should report issues from internal rules', async () => {
+  it('should report issues from internal rules', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'internal.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -50,7 +51,7 @@ describe('LinterWrapper', () => {
     ]);
   });
 
-  it('should report issues from ESLint rules', async () => {
+  it('should report issues from ESLint rules', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'eslint.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -67,7 +68,7 @@ describe('LinterWrapper', () => {
     ]);
   });
 
-  it('should report issues from TypeScript ESLint rules', async () => {
+  it('should report issues from TypeScript ESLint rules', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'typescript-eslint.ts');
     const sourceCode = await parseTypeScriptSourceFile(filePath, []);
 
@@ -84,7 +85,7 @@ describe('LinterWrapper', () => {
     ]);
   });
 
-  it('should report issues from eslint-plugin-react rules', async () => {
+  it('should report issues from eslint-plugin-react rules', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'eslint-plugin-react.js');
     const sourceCode = await parseTypeScriptSourceFile(filePath, []);
 
@@ -101,7 +102,7 @@ describe('LinterWrapper', () => {
     ]);
   });
 
-  it('should report issues from eslint-plugin-sonarjs rules', async () => {
+  it('should report issues from eslint-plugin-sonarjs rules', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'eslint-plugin-sonarjs.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -118,7 +119,7 @@ describe('LinterWrapper', () => {
     ]);
   });
 
-  it('should report issues from type-aware rules', async () => {
+  it('should report issues from type-aware rules', async ({ expect }) => {
     const fixtures = path.join(__dirname, 'fixtures', 'wrapper', 'type-aware');
     const filePath = path.join(fixtures, 'file.js');
     const tsConfig = path.join(fixtures, 'tsconfig.json');
@@ -138,7 +139,7 @@ describe('LinterWrapper', () => {
     ]);
   });
 
-  it('should report issues from custom rules', async () => {
+  it('should report issues from custom rules', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'custom-rule.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -171,7 +172,7 @@ describe('LinterWrapper', () => {
     );
   });
 
-  it('should report issues based on the file type', async () => {
+  it('should report issues based on the file type', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'file-type.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -190,7 +191,7 @@ describe('LinterWrapper', () => {
     ]);
   });
 
-  it('should not report issues from decorated rules', async () => {
+  it('should not report issues from decorated rules', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'decorated.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -203,7 +204,7 @@ describe('LinterWrapper', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should not report issues from sanitized rules', async () => {
+  it('should not report issues from sanitized rules', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'sanitized.ts');
     const sourceCode = await parseTypeScriptSourceFile(filePath, [], 'MAIN');
 
@@ -216,7 +217,7 @@ describe('LinterWrapper', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should report issues with secondary locations', async () => {
+  it('should report issues with secondary locations', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'secondary-location.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -245,7 +246,7 @@ describe('LinterWrapper', () => {
     ]);
   });
 
-  it('should merge "constructor-super" with "no-this-before-super" issues', async () => {
+  it('should merge "constructor-super" with "no-this-before-super" issues', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'constructor-super.js');
     const fileType = 'MAIN';
 
@@ -261,7 +262,7 @@ describe('LinterWrapper', () => {
     expect(issues.every(issue => issue.ruleId === 'super-invocation')).toBe(true);
   });
 
-  it('should not take into account comment-based eslint configurations', async () => {
+  it('should not take into account comment-based eslint configurations', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'eslint-config.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -271,7 +272,7 @@ describe('LinterWrapper', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should not report on globals provided by environnments configuration', async () => {
+  it('should not report on globals provided by environnments configuration', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'env.js');
     const fileType = 'MAIN';
     const language: JsTsLanguage = 'js';
@@ -285,12 +286,12 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper({ inputRules: rules, environments: env });
     const { issues } = linter.lint(sourceCode, filePath);
-    const config = linter.getConfig({ language, fileType });
-    expect(config.env['browser']).toEqual(true);
+    const config = linter.getConfig({ language, fileType })!;
+    expect(config.env!['browser']).toEqual(true);
     expect(issues).toHaveLength(0);
   });
 
-  it('should not report on globals provided by globals configuration', async () => {
+  it('should not report on globals provided by globals configuration', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'global.js');
     const fileType = 'MAIN';
     const language: JsTsLanguage = 'js';
@@ -305,11 +306,11 @@ describe('LinterWrapper', () => {
     const linter = new LinterWrapper({ inputRules: rules, globals });
     const { issues } = linter.lint(sourceCode, filePath);
 
-    expect(linter.getConfig({ language, fileType }).globals['angular']).toEqual(true);
+    expect(linter.getConfig({ language, fileType })!.globals!['angular']).toEqual(true);
     expect(issues).toHaveLength(0);
   });
 
-  it('should compute cognitive complexity and symbol highlighting', async () => {
+  it('should compute cognitive complexity and symbol highlighting', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'cognitive-symbol.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -330,9 +331,8 @@ describe('LinterWrapper', () => {
     ]);
   });
 
-  test.each(Array.from(quickFixRules))(
-    `should provide quick fixes from enabled fixable rule '%s'`,
-    async ruleId => {
+  for (const ruleId of quickFixRules) {
+    it(`should provide quick fixes from enabled fixable rule '%s'`, async ({ expect }) => {
       const fixtures = path.join(__dirname, 'fixtures', 'wrapper', 'quickfixes');
       const files = await fs.promises.readdir(fixtures);
 
@@ -357,7 +357,7 @@ describe('LinterWrapper', () => {
 
       const tsConfig = path.join(fixtures, 'tsconfig.json');
       const filePath = path.join(fixtures, fixture);
-      const parser = language === 'js' ? parseJavaScriptSourceFile : parseTypeScriptSourceFile;
+      const parser = language! === 'js' ? parseJavaScriptSourceFile : parseTypeScriptSourceFile;
       const sourceCode = await parser(filePath, [tsConfig]);
 
       const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
@@ -371,11 +371,11 @@ describe('LinterWrapper', () => {
           ruleId,
         }),
       );
-      expect(issue.quickFixes.length).toBeGreaterThan(0);
-    },
-  );
+      expect(issue!.quickFixes!.length).toBeGreaterThan(0);
+    });
+  }
 
-  it('should not provide quick fixes from disabled fixable rules', async () => {
+  it('should not provide quick fixes from disabled fixable rules', async ({ expect }) => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'quickfixes', 'disabled.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 

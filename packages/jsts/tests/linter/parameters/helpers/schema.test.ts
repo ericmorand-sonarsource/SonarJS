@@ -19,31 +19,32 @@
  */
 import { Rule } from 'eslint';
 import { getRuleSchema } from '../../../../src/linter/parameters/helpers';
+import { describe } from '../../../../../../tools/jest-to-tape-bridge';
 
-describe('getRuleSchema', () => {
-  it('should return the schema', () => {
+describe('getRuleSchema', ({ it }) => {
+  it('should return the schema', ({ expect }) => {
     expect(
       getRuleSchema({ meta: { schema: [42] } } as unknown as Rule.RuleModule, 'schema'),
     ).toEqual([42]);
   });
 
-  it('should return an array of the schema', () => {
+  it('should return an array of the schema', ({ expect }) => {
     expect(
       getRuleSchema({ meta: { schema: 'foo' } } as unknown as Rule.RuleModule, 'schema'),
     ).toEqual(['foo']);
   });
 
-  it('should return undefined on an undefined rule', () => {
+  it('should return undefined on an undefined rule', ({ expect }) => {
     console.log = jest.fn();
     expect(getRuleSchema(undefined, 'undefined-rule')).toBeUndefined();
     expect(console.log).toHaveBeenCalledWith(`DEBUG ruleModule not found for rule undefined-rule`);
   });
 
-  it('should return undefined on a meta-less rule', () => {
+  it('should return undefined on a meta-less rule', ({ expect }) => {
     expect(getRuleSchema({ meta: undefined } as Rule.RuleModule, 'meta-less')).toBeUndefined();
   });
 
-  it('should return undefined on a schema-less rule', () => {
+  it('should return undefined on a schema-less rule', ({ expect }) => {
     expect(
       getRuleSchema({ meta: { schema: undefined } } as Rule.RuleModule, 'schema-less'),
     ).toBeUndefined();

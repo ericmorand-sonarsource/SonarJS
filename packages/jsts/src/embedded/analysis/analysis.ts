@@ -19,7 +19,7 @@
  */
 import { Perf } from 'jsts/src/monitoring';
 import { Issue } from '../../linter';
-import { AnalysisInput, AnalysisOutput } from '@sonar/shared';
+import { AnalysisInput, AnalysisOutput } from '../../../../shared/src';
 
 /**
  * An analysis input of embedded code
