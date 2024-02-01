@@ -28,11 +28,14 @@ import {
   getParent,
   getTypeFromTreeNode,
   isAny,
+  isBooleanTrueType,
   isRequiredParserServices,
+  isStringType,
   RuleContext,
   toEncodedMessage,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { type UnionType } from 'typescript';
 
 class FunctionScope {
   private readonly returnStatements: estree.ReturnStatement[] = [];
@@ -81,6 +84,18 @@ export const rule: Rule.RuleModule = {
         if (stmtsTypes.every(isAny)) {
           return;
         }
+
+        const { types } = signature.getReturnType() as UnionType;
+
+        if (types.length === 2) {
+          if (
+            types.some(isBooleanTrueType) &&
+            (types.some(isStringType) || types.some(isObjectLikeType))
+          ) {
+            return;
+          }
+        }
+
         context.report({
           message: toEncodedMessage(
             'Refactor this function to always return the same type.',
