@@ -1,11 +1,10 @@
-import { createReference } from '../values/reference';
 import type { Instruction } from '../instruction';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createNewObjectFunctionDefinition } from '../function-definition';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
 import { compileAsDeclaration, handleExpression } from './index';
 import type { ExpressionHandler } from '../expression-handler';
-import { createScope } from '../scope';
+import { createScopeReference } from '../values/scope-reference';
 
 export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression> = (
   node,
@@ -14,7 +13,8 @@ export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression
   const { properties } = node;
   const { scopeManager } = context;
 
-  const objectValue = createReference(context.scopeManager.createValueIdentifier());
+  const scope = scopeManager.createScope();
+  const objectValue = createScopeReference(scope, scope.identifier);
 
   const instructions: Array<Instruction> = [
     createCallInstruction(
@@ -26,7 +26,7 @@ export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression
     ),
   ];
 
-  scopeManager.unshiftScope(createScope(objectValue.identifier));
+  scopeManager.unshiftScope(scope);
 
   for (const property of properties) {
     if (property.type === AST_NODE_TYPES.Property) {
@@ -59,6 +59,7 @@ export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression
 
   return {
     instructions,
+    scope,
     value: objectValue,
   };
 };

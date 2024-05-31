@@ -34,6 +34,7 @@ export const handleUnaryExpression: ExpressionHandler<TSESTree.UnaryExpression> 
 
   return {
     instructions,
+    scope: null,
     value,
   };
 };

@@ -5,8 +5,15 @@ import type { TypeName } from './values/type-name';
 import type { Reference } from './values/reference';
 import type { TypeInfo } from './type-info';
 import type { FunctionReference } from './values/function-reference';
+import type { ScopeReference } from './values/scope-reference';
 
-export type Value = Constant | FunctionReference | Parameter | Reference | TypeName;
+export type Value =
+  | Constant
+  | FunctionReference
+  | Parameter
+  | Reference
+  | ScopeReference
+  | TypeName;
 
 export type BaseValue<Type extends string | null> = {
   readonly identifier: number;

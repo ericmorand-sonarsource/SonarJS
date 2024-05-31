@@ -1,5 +1,6 @@
 import type { TypeInfo } from '../type-info';
 import { type BaseValue, createValue } from '../value';
+export { createNull } from './reference'; // todo: refactor code and remove
 
 export type Constant = BaseValue<'constant'> & {
   readonly value: bigint | boolean | null | number | RegExp | string | undefined;

@@ -77,6 +77,7 @@ export const handleLogicalExpression: ExpressionHandler<TSESTree.LogicalExpressi
     blockManager.pushBlock(finallyBlock);
     return {
       instructions: [],
+      scope: null,
       value: returnValue,
     };
   };
@@ -106,6 +107,7 @@ export const handleLogicalExpression: ExpressionHandler<TSESTree.LogicalExpressi
     blockManager.pushBlock(finallyBlock);
     return {
       instructions: [],
+      scope: null,
       value: returnValue,
     };
   };

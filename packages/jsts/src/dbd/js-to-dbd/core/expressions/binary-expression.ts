@@ -46,6 +46,7 @@ export const handleBinaryExpression: ExpressionHandler<TSESTree.BinaryExpression
 
   return {
     instructions,
+    scope: null,
     value,
   };
 };

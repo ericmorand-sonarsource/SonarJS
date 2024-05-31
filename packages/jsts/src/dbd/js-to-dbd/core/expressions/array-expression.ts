@@ -72,6 +72,7 @@ export const handleArrayExpression: ExpressionHandler<TSESTree.ArrayExpression> 
   });
   return {
     instructions,
+    scope: null, // todo: an array may create a scope
     value: arrayValue,
   };
 };

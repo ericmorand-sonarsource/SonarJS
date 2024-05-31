@@ -11,11 +11,11 @@ export const handleMemberExpression: ExpressionHandler<TSESTree.MemberExpression
   const instructions: Array<Instruction> = [];
 
   const { object, property } = node;
-  const { instructions: objectInstructions, value: objectValue } = handleExpression(
-    object,
-    context,
-    scopeReference,
-  );
+  const {
+    instructions: objectInstructions,
+    scope,
+    value: objectValue,
+  } = handleExpression(object, context, scopeReference);
 
   instructions.push(...objectInstructions);
 
@@ -29,6 +29,7 @@ export const handleMemberExpression: ExpressionHandler<TSESTree.MemberExpression
 
   return {
     instructions,
+    scope,
     value: propertyValue,
   };
 };

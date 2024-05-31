@@ -22,10 +22,12 @@ import { handleExpression } from './index';
 import type { Instruction } from '../instruction';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { Value } from '../value';
-import { createNull, createReference } from '../values/reference';
+import { createReference } from '../values/reference';
 import type { ExpressionHandler } from '../expression-handler';
 import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
-import { getFunctionReference, getParameter } from '../utils';
+import { getParameter } from '../utils';
+import { createNull } from '../values/constant';
+import { isAFunctionReference } from '../values/function-reference';
 
 export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (
   node,
@@ -58,7 +60,7 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
           const assignment = getAssignment(variableAndOwner.variable, scopeReference);
 
           if (assignment) {
-            argumentValues.push(createReference(assignment.identifier));
+            argumentValues.push(createReference(assignment.value.identifier));
           }
         }
 
@@ -81,15 +83,12 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
 
   instructions.push(...calleeInstructions);
 
-  // function reference
-  const functionReference = getFunctionReference(functionInfo, calleeValue.identifier);
-
-  if (functionReference) {
-    const { functionInfo } = functionReference;
+  if (isAFunctionReference(calleeValue)) {
+    const { functionInfo } = calleeValue;
 
     let operands: Array<Value> = [];
 
-    // * first argument is the current scope
+    // first argument is the current scope
     operands.push(createReference(getCurrentScopeIdentifier()));
 
     for (let index = 1; index < functionInfo.parameters.length; index++) {
@@ -104,7 +103,7 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
 
     value = createReference(createValueIdentifier());
 
-    // * second argument is an array of the passed arguments filled with null values
+    // second argument is an array of the passed arguments filled with null values
     instructions.push(
       createCallInstruction(value.identifier, null, functionInfo.definition, operands, node.loc),
     );
@@ -112,6 +111,7 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
 
   return {
     instructions,
+    scope: null,
     value: calleeValue,
   };
 };

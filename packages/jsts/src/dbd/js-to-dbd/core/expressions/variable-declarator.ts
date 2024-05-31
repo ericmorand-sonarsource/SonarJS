@@ -3,7 +3,7 @@ import { TSESTree } from '@typescript-eslint/utils';
 import type { Instruction } from '../instruction';
 import type { Value } from '../value';
 import { compileAsDeclaration, handleExpression } from './index';
-import { createNull } from '../values/reference';
+import { createNull } from '../values/constant';
 
 export const handleVariableDeclarator: ExpressionHandler<TSESTree.VariableDeclarator> = (
   node,
@@ -28,12 +28,13 @@ export const handleVariableDeclarator: ExpressionHandler<TSESTree.VariableDeclar
     initValue = createNull();
   }
 
-  const idInstructions = compileAsDeclaration(node.id, initValue, context, scopeReference);
+  const idInstructions = compileAsDeclaration(node.id, initValue, context, scopeReference as any);
 
   instructions.push(...idInstructions);
 
   return {
     instructions,
+    scope: null,
     value: initValue,
   };
 };

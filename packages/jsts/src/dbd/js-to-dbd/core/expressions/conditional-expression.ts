@@ -69,6 +69,7 @@ export const handleConditionalExpression: ExpressionHandler<TSESTree.Conditional
   blockManager.pushBlock(finallyBlock);
   return {
     instructions: [],
+    scope: null,
     value: resultValue,
   };
 };

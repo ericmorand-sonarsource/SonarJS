@@ -16,7 +16,11 @@ const serializeValue = (value: Value): string => {
   let result = '';
 
   if (value.type === 'constant') {
-    result += `<constant>${value.value}`;
+    result += `constant ${value.value}`;
+  }
+
+  if (value.type === 'parameter') {
+    result += `param `;
   }
 
   result += `#${value.identifier}`;
@@ -82,6 +86,18 @@ export const runTest = (name: string, code: string) => {
               identifier: block.identifier,
               instructions: block.instructions.map(serializeInstruction),
               scopeIdentifier: block.scope.identifier,
+            };
+          }),
+          parameters: functionInfo.parameters.map(parameter => {
+            return {
+              identifier: parameter.identifier,
+              name: parameter.name,
+            };
+          }),
+          functionReferences: functionInfo.functionReferences.map(functionReference => {
+            return {
+              identifier: functionReference.identifier,
+              signature: functionReference.functionInfo.definition.signature,
             };
           }),
         };

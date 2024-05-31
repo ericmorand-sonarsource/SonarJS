@@ -1,11 +1,13 @@
+import type { Value } from './value';
+
 export type Assignment = {
-  readonly identifier: number;
+  readonly value: Value;
   readonly variable: Variable;
 };
 
-export const createAssignment = (identifier: number, variable: Variable): Assignment => {
+export const createAssignment = (value: Value, variable: Variable): Assignment => {
   return {
-    identifier,
+    value,
     variable,
   };
 };

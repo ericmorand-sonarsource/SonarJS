@@ -5,7 +5,6 @@ import type { ExpressionHandler } from '../expression-handler';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createSetFieldFunctionDefinition } from '../function-definition';
 import { Context } from '../context-manager';
-import { createNull } from '../values/reference';
 import { handleAssignmentExpression } from './assignment-expression';
 import { handleArrowFunctionExpression } from './arrow-function-expression';
 import { handleLiteral } from './literal';
@@ -20,12 +19,14 @@ import { createAssignment, createVariable, type Variable } from '../variable';
 import { handleUnaryExpression } from './unary-expression';
 import { handleLogicalExpression } from './logical-expression';
 import { handleConditionalExpression } from './conditional-expression';
+import { createNull } from '../values/constant';
+import type { ScopeReference } from '../values/scope-reference';
 
 export const compileAsAssignment = (
   node: Exclude<TSESTree.Node, TSESTree.Statement>,
   value: Value,
   context: Context,
-  scopeReference: Value,
+  scopeReference: ScopeReference, // todo: use Scope
 ): Array<Instruction> => {
   const { scopeManager } = context;
   const { getVariableAndOwner } = scopeManager;
@@ -43,14 +44,16 @@ export const compileAsAssignment = (
       if (variableAndOwner) {
         variable = variableAndOwner.variable;
 
-        const { createValueIdentifier, addAssignment } = scopeManager;
+        const { createValueIdentifier } = scopeManager;
 
-        const variableName = variable.name;
+        const variableName = name; // variable.name;
 
         // create the assignment
-        const assignment = createAssignment(value.identifier, variable);
+        const assignment = createAssignment(value, variable);
 
-        addAssignment(variableName, assignment, scopeReference);
+        scopeReference.scope.assignments.set(variableName, assignment);
+
+        //scopeManager.addAssignment(variableName, assignment, scopeReference);
 
         instructions.push(
           createCallInstruction(
@@ -87,7 +90,16 @@ export const compileAsAssignment = (
          *
          * Hence, we must compile the property node as a declaration instead of an assignment.
          */
-        const propertyInstructions = compileAsDeclaration(property, value, context, objectValue);
+        let propertyInstructions: Array<Instruction> = [];
+
+        propertyInstructions.push(
+          ...compileAsDeclaration(
+            property,
+            value,
+            context,
+            objectValue as ScopeReference, // todo: this is needed but can we do better?
+          ),
+        );
 
         return [...objectInstructions, ...propertyInstructions];
       } else {
@@ -109,22 +121,14 @@ export const compileAsDeclaration = (
   node: Exclude<TSESTree.Node, TSESTree.Statement>,
   value: Value,
   context: Context,
-  scopeReference: Value,
+  scopeReference: ScopeReference,
 ): Array<Instruction> => {
-  const { scopeManager } = context;
-
   switch (node.type) {
     case AST_NODE_TYPES.Identifier: {
       const { name } = node;
       const variable = createVariable(name);
 
-      const scope = scopeManager.getScopeFromReference(scopeReference);
-
-      if (scope) {
-        scope.variables.set(name, variable);
-      } else {
-        scopeManager.addVariable(variable);
-      }
+      scopeReference.scope.variables.set(name, variable);
 
       return compileAsAssignment(node, value, context, scopeReference);
     }
@@ -201,6 +205,7 @@ export const handleExpression: ExpressionHandler = (node, context, scopeReferenc
 
         return {
           instructions: [],
+          scope: null,
           value: createNull(),
         };
       };

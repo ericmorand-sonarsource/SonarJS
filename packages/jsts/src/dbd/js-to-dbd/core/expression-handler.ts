@@ -2,10 +2,12 @@ import { TSESTree } from '@typescript-eslint/utils';
 import type { Instruction } from './instruction';
 import type { Context } from './context-manager';
 import type { Value } from './value';
+import type { Scope } from './scope';
 
 export type ExpressionHandlerResult = {
   readonly instructions: Array<Instruction>;
-  readonly value: Value;
+  readonly scope: Scope | null;
+  readonly value: Value; // todo: | null?
 };
 
 export type ExpressionHandler<
