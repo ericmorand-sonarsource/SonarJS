@@ -33,4 +33,4 @@ for (const ruleKey of Object.keys(rules)) {
 /**
  * TypeScript ESLint rules.
  */
-export const tsEslintRules = sanitized;
+export const t = sanitized;

@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3723/javascript
 
-import { eslintRules } from '../core';
+import { e } from '../core';
 import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 import { Rule } from 'eslint';
@@ -29,6 +29,6 @@ import { Rule } from 'eslint';
  * same ESLint implementation, but the plugin doesn't allow rule key duplicates.
  */
 export const rule = {
-  ...eslintRules['comma-dangle'],
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, eslintRules['comma-dangle'].meta),
+  ...e['comma-dangle'],
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, e['comma-dangle'].meta),
 };

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { eslintRules } from '../core';
+import { e } from '../core';
 import { decorate } from './decorator';
 
 /**
  * TypeScript ESLint implementation of 'no-throw-literal' does not support JavaScript code.
  * Therefore, we decorate ESLint's implemention of the rule.
  */
-export const rule = decorate(eslintRules['no-throw-literal']);
+export const rule = decorate(e['no-throw-literal']);

@@ -33,11 +33,11 @@ import {
   SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { eslintRules } from '../core';
+import { e } from '../core';
 import rspecMeta from './meta.json';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 
-const getterReturnRule = eslintRules['getter-return'];
+const getterReturnRule = e['getter-return'];
 type AccessorNode = TSESTree.Property | TSESTree.MethodDefinition;
 
 function isAccessorNode(node: TSESTree.Node | null | undefined): node is AccessorNode {

@@ -52,6 +52,7 @@ import org.sonar.css.rules.CssRule;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;

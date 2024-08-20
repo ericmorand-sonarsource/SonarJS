@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -123,12 +124,8 @@ class JsTsChecksTest {
 
   @TypeScriptRule
   @JavaScriptRule
-  @Rule(key = "customcheck")
-  public static class CustomTsCheck implements EslintBasedCheck {
+  @Rule(key = "key")
+  public static class CustomTsCheck extends Check {
 
-    @Override
-    public String eslintKey() {
-      return "key";
-    }
   }
 }

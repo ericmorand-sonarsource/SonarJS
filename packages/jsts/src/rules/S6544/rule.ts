@@ -20,8 +20,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6544/javascript
 
 import { Rule } from 'eslint';
-import { tsEslintRules } from '../typescript-eslint';
-import { eslintRules } from '../core';
+import { t } from '../typescript-eslint';
+import { e } from '../core';
 import {
   FUNCTION_NODES,
   generateMeta,
@@ -44,7 +44,7 @@ import rspecMeta from './meta.json';
  */
 const flaggedNodeStarts = new Map();
 
-const noMisusedPromisesRule = tsEslintRules['no-misused-promises'];
+const noMisusedPromisesRule = t['no-misused-promises'];
 const decoratedNoMisusedPromisesRule = interceptReport(
   noMisusedPromisesRule,
   (context, descriptor) => {
@@ -68,7 +68,7 @@ const decoratedNoMisusedPromisesRule = interceptReport(
   },
 );
 
-const noAsyncPromiseExecutorRule = eslintRules['no-async-promise-executor'];
+const noAsyncPromiseExecutorRule = e['no-async-promise-executor'];
 const decoratedNoAsyncPromiseExecutorRule = interceptReport(
   noAsyncPromiseExecutorRule,
   (context, descriptor) => {

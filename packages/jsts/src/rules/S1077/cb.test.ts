@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { check } from '../../../tests/tools';
-import { rule } from './';
+import { S1077 } from './';
 import path from 'path';
 
 const sonarId = path.basename(__dirname);
 
 describe('Rule S1077', () => {
-  check(sonarId, rule, __dirname);
+  check(sonarId, S1077, __dirname);
 });

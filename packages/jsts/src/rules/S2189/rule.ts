@@ -20,13 +20,13 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2189/javascript
 
 import { Rule, Scope } from 'eslint';
-import { eslintRules } from '../core';
+import { e } from '../core';
 import * as estree from 'estree';
 import { childrenOf, generateMeta, interceptReport, isUndefined, mergeRules } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
 import rspecMeta from './meta.json';
 
-const noUnmodifiedLoopEslint = eslintRules['no-unmodified-loop-condition'];
+const noUnmodifiedLoopEslint = e['no-unmodified-loop-condition'];
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {

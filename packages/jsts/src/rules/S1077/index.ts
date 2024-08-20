@@ -20,4 +20,4 @@
 import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
 import { decorate } from './decorator';
 
-export const rule = decorate(jsxA11yRules['alt-text']);
+export const S1077 = decorate(jsxA11yRules['alt-text']);

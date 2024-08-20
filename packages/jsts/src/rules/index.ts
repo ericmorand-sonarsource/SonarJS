@@ -24,9 +24,13 @@ import { PackageJson } from 'type-fest';
 import { Rule } from 'eslint';
 import type { TSESLint } from '@typescript-eslint/utils';
 import type { FlatConfig } from '@typescript-eslint/utils/ts-eslint';
+import { e } from './core';
+import { rules as a } from 'eslint-plugin-jsx-a11y';
+import { rules as r } from 'eslint-plugin-react';
+import { rules as i } from 'eslint-plugin-import';
 
 import { rule as S2376 } from './S2376'; // accessor-pairs
-import { rule as S1077 } from './S1077'; // alt-text
+import { S1077 } from './S1077'; // alt-text
 import { rule as S6827 } from './S6827'; // anchor-has-content
 import { rule as S6844 } from './S6844'; // anchor-is-valid
 import { rule as S5850 } from './S5850'; // anchor-precedence
@@ -347,336 +351,412 @@ import { rule as S4423 } from './S4423'; // weak-ssl
 import { rule as S2817 } from './S2817'; // web-sql-database
 import { rule as S5689 } from './S5689'; // x-powered-by
 import { rule as S2755 } from './S2755'; // xml-parser-xxe
-import { rule as S4817 } from './S4817'; // xpath
+import { rule as S4817 } from './S4817';
+import { t } from './typescript-eslint'; // xpath
 
 /**
  * Maps ESLint rule keys declared in the JavaScript checks to rule implementations
  */
-const rules: { [key: string]: Rule.RuleModule } = {};
-
-rules['accessor-pairs'] = S2376;
-rules['alt-text'] = S1077;
-rules['anchor-has-content'] = S6827;
-rules['anchor-is-valid'] = S6844;
-rules['anchor-precedence'] = S5850;
-rules['argument-type'] = S3782;
-rules['arguments-order'] = S2234;
-rules['arguments-usage'] = S3513;
-rules['array-callback-without-return'] = S3796;
-rules['array-constructor'] = S1528;
-rules['arrow-function-convention'] = S3524;
-rules['assertions-in-tests'] = S2699;
-rules['aws-apigateway-public-api'] = S6333;
-rules['aws-ec2-rds-dms-public'] = S6329;
-rules['aws-ec2-unencrypted-ebs-volume'] = S6275;
-rules['aws-efs-unencrypted'] = S6332;
-rules['aws-iam-all-privileges'] = S6302;
-rules['aws-iam-all-resources-accessible'] = S6304;
-rules['aws-iam-privilege-escalation'] = S6317;
-rules['aws-iam-public-access'] = S6270;
-rules['aws-opensearchservice-domain'] = S6308;
-rules['aws-rds-unencrypted-databases'] = S6303;
-rules['aws-restricted-ip-admin-access'] = S6321;
-rules['aws-s3-bucket-granted-access'] = S6265;
-rules['aws-s3-bucket-insecure-http'] = S6249;
-rules['aws-s3-bucket-public-access'] = S6281;
-rules['aws-s3-bucket-server-encryption'] = S6245;
-rules['aws-s3-bucket-versioning'] = S6252;
-rules['aws-sagemaker-unencrypted-notebook'] = S6319;
-rules['aws-sns-unencrypted-topics'] = S6327;
-rules['aws-sqs-unencrypted-queue'] = S6330;
-rules['bitwise-operators'] = S1529;
-rules['bool-param-default'] = S4798;
-rules['brace-style'] = S1105;
-rules['call-argument-line'] = S1472;
-rules['certificate-transparency'] = S5742;
-rules['chai-determinate-assertion'] = S6092;
-rules['class-name'] = S101;
-rules['class-prototype'] = S3525;
-rules['code-eval'] = S1523;
-rules['cognitive-complexity'] = S3776;
-rules['comma-or-logical-or-case'] = S3616;
-rules['comment-regex'] = S124;
-rules['concise-regex'] = S6353;
-rules['conditional-indentation'] = S3973;
-rules['confidential-information-logging'] = S5757;
-rules['constructor-for-side-effects'] = S1848;
-rules['content-length'] = S5693;
-rules['content-security-policy'] = S5728;
-rules['cookie-no-httponly'] = S3330;
-rules['cookies'] = S2255;
-rules['cors'] = S5122;
-rules['csrf'] = S4502;
-rules['cyclomatic-complexity'] = S1541;
-rules['declarations-in-global-scope'] = S3798;
-rules['default-param-last'] = S1788;
-rules['deprecation'] = S1874;
-rules['destructuring-assignment-syntax'] = S3514;
-rules['different-types-comparison'] = S3403;
-rules['disabled-auto-escaping'] = S5247;
-rules['disabled-resource-integrity'] = S5725;
-rules['disabled-timeout'] = S6080;
-rules['dns-prefetching'] = S5743;
-rules['duplicates-in-character-class'] = S5869;
-rules['elseif-without-else'] = S126;
-rules['empty-string-repetition'] = S5842;
-rules['encryption'] = S4787;
-rules['encryption-secure-mode'] = S5542;
-rules['enforce-trailing-comma'] = S3723;
-rules['existing-groups'] = S6328;
-rules['expression-complexity'] = S1067;
-rules['file-header'] = S1451;
-rules['file-name-differ-from-class'] = S3317;
-rules['file-permissions'] = S2612;
-rules['file-uploads'] = S2598;
-rules['fixme-tag'] = S1134;
-rules['for-in'] = S1535;
-rules['for-loop-increment-sign'] = S2251;
-rules['frame-ancestors'] = S5732;
-rules['function-inside-loop'] = S1515;
-rules['function-name'] = S100;
-rules['function-return-type'] = S3800;
-rules['future-reserved-words'] = S1527;
-rules['generator-without-yield'] = S3531;
-rules['hashing'] = S4790;
-rules['hidden-files'] = S5691;
-rules['hook-use-state'] = S6754;
-rules['html-has-lang'] = S5254;
-rules['in-operator-type-error'] = S3785;
-rules['inconsistent-function-call'] = S3686;
-rules['index-of-compare-to-positive-number'] = S2692;
-rules['insecure-cookie'] = S2092;
-rules['insecure-jwt-token'] = S5659;
-rules['inverted-assertion-arguments'] = S3415;
-rules['jsx-key'] = S6477;
-rules['jsx-no-constructed-context-values'] = S6481;
-rules['jsx-no-useless-fragment'] = S6749;
-rules['label-has-associated-control'] = S6853;
-rules['label-position'] = S1439;
-rules['link-with-target-blank'] = S5148;
-rules['max-switch-cases'] = S1479;
-rules['max-union-size'] = S4622;
-rules['media-has-caption'] = S4084;
-rules['misplaced-loop-counter'] = S1994;
-rules['mouse-events-a11y'] = S1082;
-rules['nested-control-flow'] = S134;
-rules['new-cap'] = S2430;
-rules['new-operator-misuse'] = S2999;
-rules['no-accessor-field-mismatch'] = S4275;
-rules['no-all-duplicated-branches'] = S3923;
-rules['no-alphabetical-sort'] = S2871;
-rules['no-angular-bypass-sanitization'] = S6268;
-rules['no-array-delete'] = S2870;
-rules['no-array-index-key'] = S6479;
-rules['no-associative-arrays'] = S3579;
-rules['no-base-to-string'] = S6551;
-rules['no-built-in-override'] = S2424;
-rules['no-case-label-in-switch'] = S1219;
-rules['no-clear-text-protocols'] = S5332;
-rules['no-code-after-done'] = S6079;
-rules['no-collapsible-if'] = S1066;
-rules['no-collection-size-mischeck'] = S3981;
-rules['no-commented-code'] = S125;
-rules['no-dead-store'] = S1854;
-rules['no-delete-var'] = S3001;
-rules['no-deprecated-react'] = S6957;
-rules['no-duplicate-in-composite'] = S4621;
-rules['no-duplicate-string'] = S1192;
-rules['no-duplicated-branches'] = S1871;
-rules['no-element-overwrite'] = S4143;
-rules['no-empty-after-reluctant'] = S6019;
-rules['no-empty-alternatives'] = S6323;
-rules['no-empty-collection'] = S4158;
-rules['no-empty-function'] = S1186;
-rules['no-empty-group'] = S6331;
-rules['no-empty-interface'] = S4023;
-rules['no-empty-test-file'] = S2187;
-rules['no-equals-in-for-termination'] = S888;
-rules['no-exclusive-tests'] = S6426;
-rules['no-extend-native'] = S6643;
-rules['no-extra-arguments'] = S930;
-rules['no-extra-semi'] = S1116;
-rules['no-find-dom-node'] = S6788;
-rules['no-for-in-iterable'] = S4139;
-rules['no-function-declaration-in-block'] = S1530;
-rules['no-global-this'] = S2990;
-rules['no-globals-shadowing'] = S2137;
-rules['no-gratuitous-expressions'] = S2589;
-rules['no-hardcoded-credentials'] = S2068;
-rules['no-hardcoded-ip'] = S1313;
-rules['no-hook-setter-in-body'] = S6442;
-rules['no-identical-conditions'] = S1862;
-rules['no-identical-expressions'] = S1764;
-rules['no-identical-functions'] = S4144;
-rules['no-ignored-exceptions'] = S2486;
-rules['no-ignored-return'] = S2201;
-rules['no-implicit-dependencies'] = S4328;
-rules['no-implicit-global'] = S2703;
-rules['no-in-misuse'] = S4619;
-rules['no-incomplete-assertions'] = S2970;
-rules['no-inconsistent-returns'] = S3801;
-rules['no-incorrect-string-concat'] = S3402;
-rules['no-infinite-loop'] = S2189;
-rules['no-intrusive-permissions'] = S5604;
-rules['no-invalid-await'] = S4123;
-rules['no-invariant-returns'] = S3516;
-rules['no-inverted-boolean-check'] = S1940;
-rules['no-ip-forward'] = S5759;
-rules['no-labels'] = S1119;
-rules['no-literal-call'] = S6958;
-rules['no-lonely-if'] = S6660;
-rules['no-mime-sniff'] = S5734;
-rules['no-misleading-array-reverse'] = S4043;
-rules['no-misused-promises'] = S6544;
-rules['no-mixed-content'] = S5730;
-rules['no-nested-assignment'] = S1121;
-rules['no-nested-conditional'] = S3358;
-rules['no-nested-functions'] = S2004;
-rules['no-nested-incdec'] = S881;
-rules['no-nested-switch'] = S1821;
-rules['no-nested-template-literals'] = S4624;
-rules['no-one-iteration-loop'] = S1751;
-rules['no-os-command-from-path'] = S4036;
-rules['no-parameter-reassignment'] = S1226;
-rules['no-primitive-wrappers'] = S1533;
-rules['no-redeclare'] = S2814;
-rules['no-redundant-assignments'] = S4165;
-rules['no-redundant-boolean'] = S1125;
-rules['no-redundant-jump'] = S3626;
-rules['no-redundant-optional'] = S4782;
-rules['no-redundant-parentheses'] = S1110;
-rules['no-redundant-type-constituents'] = S6571;
-rules['no-reference-error'] = S3827;
-rules['no-referrer-policy'] = S5736;
-rules['no-require-or-define'] = S3533;
-rules['no-return-type-any'] = S4324;
-rules['no-same-argument-assert'] = S5863;
-rules['no-same-line-conditional'] = S3972;
-rules['no-self-compare'] = S6679;
-rules['no-small-switch'] = S1301;
-rules['no-tab'] = S105;
-rules['no-table-as-layout'] = S5257;
-rules['no-this-alias'] = S4327;
-rules['no-throw-literal'] = S3696;
-rules['no-try-promise'] = S4822;
-rules['no-undefined-argument'] = S4623;
-rules['no-undefined-assignment'] = S2138;
-rules['no-unenclosed-multiline-block'] = S2681;
-rules['no-uniq-key'] = S6486;
-rules['no-unknown-property'] = S6747;
-rules['no-unreachable'] = S1763;
-rules['no-unsafe'] = S6791;
-rules['no-unsafe-unzip'] = S5042;
-rules['no-unstable-nested-components'] = S6478;
-rules['no-unthrown-error'] = S3984;
-rules['no-unused-collection'] = S4030;
-rules['no-unused-expressions'] = S905;
-rules['no-unused-function-argument'] = S1172;
-rules['no-unused-private-class-members'] = S1068;
-rules['no-use-of-empty-return-value'] = S3699;
-rules['no-useless-call'] = S6676;
-rules['no-useless-catch'] = S2737;
-rules['no-useless-constructor'] = S6647;
-rules['no-useless-increment'] = S2123;
-rules['no-useless-intersection'] = S4335;
-rules['no-useless-react-setstate'] = S6443;
-rules['no-var'] = S3504;
-rules['no-variable-usage-before-declaration'] = S1526;
-rules['no-vue-bypass-sanitization'] = S6299;
-rules['no-weak-cipher'] = S5547;
-rules['no-weak-keys'] = S4426;
-rules['no-wildcard-import'] = S2208;
-rules['non-existent-operator'] = S2757;
-rules['non-number-in-arithmetic-expression'] = S3760;
-rules['null-dereference'] = S2259;
-rules['object-alt-content'] = S5264;
-rules['object-shorthand'] = S3498;
-rules['operation-returning-nan'] = S3757;
-rules['os-command'] = S4721;
-rules['post-message'] = S2819;
-rules['prefer-default-last'] = S4524;
-rules['prefer-enum-initializers'] = S6572;
-rules['prefer-for-of'] = S4138;
-rules['prefer-function-type'] = S6598;
-rules['prefer-immediate-return'] = S1488;
-rules['prefer-namespace-keyword'] = S4156;
-rules['prefer-nullish-coalescing'] = S6606;
-rules['prefer-object-literal'] = S2428;
-rules['prefer-object-spread'] = S6661;
-rules['prefer-promise-shorthand'] = S4634;
-rules['prefer-single-boolean-return'] = S1126;
-rules['prefer-spread'] = S6666;
-rules['prefer-string-starts-ends-with'] = S6557;
-rules['prefer-template'] = S3512;
-rules['prefer-type-guard'] = S4322;
-rules['prefer-while'] = S1264;
-rules['process-argv'] = S4823;
-rules['production-debug'] = S4507;
-rules['pseudo-random'] = S2245;
-rules['public-static-readonly'] = S1444;
-rules['publicly-writable-directories'] = S5443;
-rules['reduce-initial-value'] = S6959;
-rules['redundant-type-aliases'] = S6564;
-rules['regex-complexity'] = S5843;
-rules['regular-expr'] = S4784;
-rules['rules-of-hooks'] = S6440;
-rules['semi'] = S1438;
-rules['session-regeneration'] = S5876;
-rules['shorthand-property-grouping'] = S3499;
-rules['single-char-in-character-classes'] = S6397;
-rules['single-character-alternation'] = S6035;
-rules['slow-regex'] = S5852;
-rules['sockets'] = S4818;
-rules['sonar-block-scoped-var'] = S2392;
-rules['sonar-jsx-no-leaked-render'] = S6439;
-rules['sonar-max-lines'] = S104;
-rules['sonar-max-lines-per-function'] = S138;
-rules['sonar-max-params'] = S107;
-rules['sonar-no-control-regex'] = S6324;
-rules['sonar-no-dupe-keys'] = S1534;
-rules['sonar-no-empty-character-class'] = S2639;
-rules['sonar-no-fallthrough'] = S128;
-rules['sonar-no-invalid-regexp'] = S5856;
-rules['sonar-no-magic-numbers'] = S109;
-rules['sonar-no-misleading-character-class'] = S5868;
-rules['sonar-no-regex-spaces'] = S6326;
-rules['sonar-no-unused-class-component-methods'] = S6441;
-rules['sonar-no-unused-vars'] = S1481;
-rules['sonar-prefer-optional-chain'] = S6582;
-rules['sonar-prefer-read-only-props'] = S6759;
-rules['sonar-prefer-regexp-exec'] = S6594;
-rules['sql-queries'] = S2077;
-rules['stable-tests'] = S5973;
-rules['standard-input'] = S4829;
-rules['stateful-regex'] = S6351;
-rules['strict-transport-security'] = S5739;
-rules['strings-comparison'] = S3003;
-rules['super-invocation'] = S3854;
-rules['switch-without-default'] = S131;
-rules['table-header'] = S5256;
-rules['table-header-reference'] = S5260;
-rules['test-check-exception'] = S5958;
-rules['todo-tag'] = S1135;
-rules['too-many-break-or-continue-in-loop'] = S135;
-rules['unicode-aware-regex'] = S5867;
-rules['unnecessary-character-escapes'] = S6535;
-rules['unused-import'] = S1128;
-rules['unused-named-groups'] = S5860;
-rules['unverified-certificate'] = S4830;
-rules['unverified-hostname'] = S5527;
-rules['updated-const-var'] = S3500;
-rules['updated-loop-counter'] = S2310;
-rules['use-isnan'] = S2688;
-rules['use-type-alias'] = S4323;
-rules['useless-string-operation'] = S1154;
-rules['values-not-convertible-to-numbers'] = S3758;
-rules['variable-name'] = S117;
-rules['void-use'] = S3735;
-rules['weak-ssl'] = S4423;
-rules['web-sql-database'] = S2817;
-rules['x-powered-by'] = S5689;
-rules['xml-parser-xxe'] = S2755;
-rules['xpath'] = S4817;
+const rules: { [key: string]: Rule.RuleModule } = {
+  S2376,
+  S1077,
+  S6827,
+  S6844,
+  S5850,
+  S3782,
+  S2234,
+  S3513,
+  S3796,
+  S1528,
+  S3524,
+  S2699,
+  S6333,
+  S6329,
+  S6275,
+  S6332,
+  S6302,
+  S6304,
+  S6317,
+  S6270,
+  S6308,
+  S6303,
+  S6321,
+  S6265,
+  S6249,
+  S6281,
+  S6245,
+  S6252,
+  S6319,
+  S6327,
+  S6330,
+  S1529,
+  S4798,
+  S1105,
+  S1472,
+  S5742,
+  S6092,
+  S101,
+  S3525,
+  S1523,
+  S3776,
+  S3616,
+  S124,
+  S6353,
+  S3973,
+  S5757,
+  S1848,
+  S5693,
+  S5728,
+  S3330,
+  S2255,
+  S5122,
+  S4502,
+  S1541,
+  S3798,
+  S1788,
+  S1874,
+  S3514,
+  S3403,
+  S5247,
+  S5725,
+  S6080,
+  S5743,
+  S5869,
+  S126,
+  S5842,
+  S4787,
+  S5542,
+  S3723,
+  S6328,
+  S1067,
+  S1451,
+  S3317,
+  S2612,
+  S2598,
+  S1134,
+  S1535,
+  S2251,
+  S5732,
+  S1515,
+  S100,
+  S3800,
+  S1527,
+  S3531,
+  S4790,
+  S5691,
+  S6754,
+  S5254,
+  S3785,
+  S3686,
+  S2692,
+  S2092,
+  S5659,
+  S3415,
+  S6477,
+  S6481,
+  S6749,
+  S6853,
+  S1439,
+  S5148,
+  S1479,
+  S4622,
+  S4084,
+  S1994,
+  S1082,
+  S134,
+  S2430,
+  S2999,
+  S4275,
+  S3923,
+  S2871,
+  S6268,
+  S2870,
+  S6479,
+  S3579,
+  S6551,
+  S2424,
+  S1219,
+  S5332,
+  S6079,
+  S1066,
+  S3981,
+  S125,
+  S1854,
+  S3001,
+  S6957,
+  S4621,
+  S1192,
+  S1871,
+  S4143,
+  S6019,
+  S6323,
+  S4158,
+  S1186,
+  S6331,
+  S4023,
+  S2187,
+  S888,
+  S6426,
+  S6643,
+  S930,
+  S1116,
+  S6788,
+  S4139,
+  S1530,
+  S2990,
+  S2137,
+  S2589,
+  S2068,
+  S1313,
+  S6442,
+  S1862,
+  S1764,
+  S4144,
+  S2486,
+  S2201,
+  S4328,
+  S2703,
+  S4619,
+  S2970,
+  S3801,
+  S3402,
+  S2189,
+  S5604,
+  S4123,
+  S3516,
+  S1940,
+  S5759,
+  S1119,
+  S6958,
+  S6660,
+  S5734,
+  S4043,
+  S6544,
+  S5730,
+  S1121,
+  S3358,
+  S2004,
+  S881,
+  S1821,
+  S4624,
+  S1751,
+  S4036,
+  S1226,
+  S1533,
+  S2814,
+  S4165,
+  S1125,
+  S3626,
+  S4782,
+  S1110,
+  S6571,
+  S3827,
+  S5736,
+  S3533,
+  S4324,
+  S5863,
+  S3972,
+  S6679,
+  S1301,
+  S105,
+  S5257,
+  S4327,
+  S3696,
+  S4822,
+  S4623,
+  S2138,
+  S2681,
+  S6486,
+  S6747,
+  S1763,
+  S6791,
+  S5042,
+  S6478,
+  S3984,
+  S4030,
+  S905,
+  S1172,
+  S1068,
+  S3699,
+  S6676,
+  S2737,
+  S6647,
+  S2123,
+  S4335,
+  S6443,
+  S3504,
+  S1526,
+  S6299,
+  S5547,
+  S4426,
+  S2208,
+  S2757,
+  S3760,
+  S2259,
+  S5264,
+  S3498,
+  S3757,
+  S4721,
+  S2819,
+  S4524,
+  S6572,
+  S4138,
+  S6598,
+  S1488,
+  S4156,
+  S6606,
+  S2428,
+  S6661,
+  S4634,
+  S1126,
+  S6666,
+  S6557,
+  S3512,
+  S4322,
+  S1264,
+  S4823,
+  S4507,
+  S2245,
+  S1444,
+  S5443,
+  S6959,
+  S6564,
+  S5843,
+  S4784,
+  S6440,
+  S1438,
+  S5876,
+  S3499,
+  S6397,
+  S6035,
+  S5852,
+  S4818,
+  S2392,
+  S6439,
+  S104,
+  S138,
+  S107,
+  S6324,
+  S1534,
+  S2639,
+  S128,
+  S5856,
+  S109,
+  S5868,
+  S6326,
+  S6441,
+  S1481,
+  S6582,
+  S6759,
+  S6594,
+  S2077,
+  S5973,
+  S4829,
+  S6351,
+  S5739,
+  S3003,
+  S3854,
+  S131,
+  S5256,
+  S5260,
+  S5958,
+  S1135,
+  S135,
+  S5867,
+  S6535,
+  S1128,
+  S5860,
+  S4830,
+  S5527,
+  S3500,
+  S2310,
+  S2688,
+  S4323,
+  S1154,
+  S3758,
+  S117,
+  S3735,
+  S4423,
+  S2817,
+  S5689,
+  S2755,
+  S4817,
+  S108: e['no-empty'],
+  S878: e['no-sequences'],
+  S1090: a['iframe-has-title'],
+  S1143: e['no-unsafe-finally'],
+  S1199: e['no-lone-blocks'],
+  S1314: e['no-octal'],
+  S1321: e['no-with'],
+  S1516: e['no-multi-str'],
+  S1536: e['no-dupe-args'],
+  S1656: e['no-self-assign'],
+  S2094: t['no-extraneous-class'],
+  S2432: e['no-setter-return'],
+  S2685: e['no-caller'],
+  S3523: e['no-new-func'],
+  S3799: e['no-empty-pattern'],
+  S3812: e['no-unsafe-negation'],
+  S3834: e['no-new-native-nonconstructor'],
+  S3863: i['no-duplicates'],
+  S4125: e['valid-typeof'],
+  S4140: e['no-sparse-arrays'],
+  S6325: e['prefer-regex-literals'],
+  S6435: r['require-render-return'],
+  S6438: r['jsx-no-comment-textnodes'],
+  S6509: e['no-extra-boolean-cast'],
+  S6522: e['no-import-assign'],
+  S6523: e['no-unsafe-optional-chaining'],
+  S6534: e['no-loss-of-precision'],
+  S6635: e['no-constructor-return'],
+  S6638: e['no-constant-binary-expression'],
+  S6644: e['no-unneeded-ternary'],
+  S6645: e['no-undef-init'],
+  S6650: e['no-useless-rename'],
+  S6653: e['prefer-object-has-own'],
+  S6654: e['no-proto'],
+  S6657: e['no-octal-escape'],
+  S6637: e['no-extra-bind'],
+  S6671: e['prefer-promise-reject-errors'],
+  S6746: r['no-direct-mutation-state'],
+  S6748: r['no-children-prop'],
+  S6750: r['no-render-return-value'],
+  S6756: r['no-access-state-in-setstate'],
+  S6757: r['no-this-in-sfc'],
+  S6761: r['no-danger-with-children'],
+  S6763: r['no-redundant-should-component-update'],
+  S6766: r['no-unescaped-entities'],
+  S6767: r['no-unused-prop-types'],
+  S6770: r['jsx-pascal-case'],
+  S6772: r['jsx-child-element-spacing'],
+  S6774: r['prop-types'],
+  S6775: r['default-props-match-prop-types'],
+  S6789: r['no-is-mounted'],
+  S6790: r['no-string-refs'],
+  S6793: a['aria-proptypes'],
+  S6807: a['role-has-required-aria-props'],
+  S6811: a['role-supports-aria-props'],
+  S6819: a['prefer-tag-over-role'],
+  S6821: a['aria-role'],
+  S6822: a['no-redundant-roles'],
+  S6823: a['aria-activedescendant-has-tabindex'],
+  S6824: a['aria-unsupported-elements'],
+  S6825: a['no-aria-hidden-on-focusable'],
+  S6836: e['no-case-declarations'],
+  S6840: a['autocomplete-valid'],
+  S6841: a['tabindex-no-positive'],
+  S6842: a['no-noninteractive-element-to-interactive-role'],
+  S6843: a['no-interactive-element-to-noninteractive-role'],
+  S6845: a['no-noninteractive-tabindex'],
+  S6846: a['no-access-key'],
+  S6847: a['no-noninteractive-element-interactions'],
+  S6848: a['no-static-element-interactions'],
+  S6850: a['heading-has-content'],
+  S6851: a['img-redundant-alt'],
+  S6852: a['interactive-supports-focus'],
+  S6859: i['no-absolute-path'],
+  S6861: i['no-mutable-exports'],
+};
 
 const recommendedLegacyConfig: TSESLint.Linter.ConfigType = { plugins: ['sonarjs'], rules: {} };
 const recommendedConfig: FlatConfig.Config = {
@@ -695,6 +775,8 @@ const recommendedConfig: FlatConfig.Config = {
 };
 
 for (const [key, rule] of Object.entries(rules)) {
+  console.log('KEY', key);
+
   const recommended = !!rule.meta!.docs?.recommended;
 
   recommendedConfig.rules![`sonarjs/${key}`] = recommended ? 'error' : 'off';

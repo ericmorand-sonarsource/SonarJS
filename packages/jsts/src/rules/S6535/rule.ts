@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6535/javascript
 
 import { Rule } from 'eslint';
-import { eslintRules } from '../core';
+import { e } from '../core';
 import { generateMeta, interceptReport, mergeRules } from '../helpers';
 import rspecMeta from './meta.json';
 
@@ -32,8 +32,8 @@ import rspecMeta from './meta.json';
  *
  * Here we arbitrarily choose to decorate 'no-nonoctal-decimal-escape'.
  */
-const noUselessEscapeRule = eslintRules['no-useless-escape'];
-const noNonoctalDecimalEscapeRule = eslintRules['no-nonoctal-decimal-escape'];
+const noUselessEscapeRule = e['no-useless-escape'];
+const noNonoctalDecimalEscapeRule = e['no-nonoctal-decimal-escape'];
 
 /**
  * We decorate 'no-nonoctal-decimal-escape' to map suggestions with the message id 'escapeBackslash' to 'nonOctalEscapeBacklash'.

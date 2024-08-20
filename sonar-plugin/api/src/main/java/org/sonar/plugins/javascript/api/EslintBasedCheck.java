@@ -24,6 +24,10 @@ import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 
+/**
+ * @deprecated Please use the {@link org.sonar.plugins.javascript.api.Check} class instead
+ */
+@Deprecated(forRemoval = false)
 public interface EslintBasedCheck extends JavaScriptCheck {
   String eslintKey();
 

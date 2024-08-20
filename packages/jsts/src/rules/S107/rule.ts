@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { eslintRules } from '../core';
+import { e } from '../core';
 import {
   generateMeta,
   getFullyQualifiedName,
@@ -35,7 +35,7 @@ import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
 import rspecMeta from './meta.json';
 
-const eslintMaxParams = eslintRules['max-params'];
+const eslintMaxParams = e['max-params'];
 
 const DEFAULT_MAXIMUM_FUNCTION_PARAMETERS = 7;
 

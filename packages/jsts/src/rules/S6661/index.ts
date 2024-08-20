@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { eslintRules } from '../core';
+import { e } from '../core';
 import { decorate } from './decorator';
 import { isSupported } from '../helpers/validate-version';
 
-const decorated = decorate(eslintRules['prefer-object-spread']);
+const decorated = decorate(e['prefer-object-spread']);
 
 export const rule: Rule.RuleModule = {
   meta: decorated.meta,

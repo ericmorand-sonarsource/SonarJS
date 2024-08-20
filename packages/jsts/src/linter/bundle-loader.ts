@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter, Rule } from 'eslint';
-import { eslintRules } from '../rules/core';
-import { tsEslintRules } from '../rules/typescript-eslint';
+import { e } from '../rules/core';
+import { t } from '../rules/typescript-eslint';
 import { rules as reactESLintRules } from 'eslint-plugin-react';
 import { rules as reactA11yRules } from 'eslint-plugin-jsx-a11y';
 import { rules as importRules } from 'eslint-plugin-import';
@@ -58,13 +58,7 @@ const loaders: { [key: string]: Function } = {
      * Core ESLint rules could be overridden by the implementation from specific
      * dependencies, which should be the default behaviour in most cases.
      */
-    const dependencies = [
-      eslintRules,
-      tsEslintRules,
-      reactESLintRules,
-      reactA11yRules,
-      importRules,
-    ];
+    const dependencies = [e, t, reactESLintRules, reactA11yRules, importRules];
     for (const dependencyRules of dependencies) {
       for (const [name, module] of Object.entries(dependencyRules)) {
         externalRules[name] = module;

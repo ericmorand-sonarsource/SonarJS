@@ -21,7 +21,7 @@
 
 import * as estree from 'estree';
 import { Rule, SourceCode } from 'eslint';
-import { tsEslintRules } from '../typescript-eslint';
+import { t } from '../typescript-eslint';
 import {
   generateMeta,
   interceptReport,
@@ -81,7 +81,7 @@ const switchWithoutDefaultRule: Rule.RuleModule = {
  * rule is executed to prevent runtime errors. Furthermore, we need to decorate the rule so that
  * it raises issues at the same location, that is, the `switch` keyword.
  */
-const switchExhaustivenessRule = tsEslintRules['switch-exhaustiveness-check'];
+const switchExhaustivenessRule = t['switch-exhaustiveness-check'];
 const decoratedSwitchExhaustivenessRule: Rule.RuleModule = interceptReport(
   switchExhaustivenessRule,
   function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {

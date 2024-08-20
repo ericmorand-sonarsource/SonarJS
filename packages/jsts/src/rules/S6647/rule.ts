@@ -19,7 +19,7 @@
  */
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import { eslintRules } from '../core';
+import { e } from '../core';
 import { decorate } from './decorator';
 import { getVariableFromName } from '../helpers';
 import type estree from 'estree';
@@ -96,7 +96,7 @@ function checkInheritance(node: TSESTree.MethodDefinition, context: Rule.RuleCon
   return true;
 }
 
-const eslintNoUselessConstructor = eslintRules['no-useless-constructor'];
+const eslintNoUselessConstructor = e['no-useless-constructor'];
 
 const originalRule: Rule.RuleModule = {
   meta: eslintNoUselessConstructor.meta,

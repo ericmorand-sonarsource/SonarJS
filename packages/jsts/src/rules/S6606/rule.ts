@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { tsEslintRules } from '../typescript-eslint';
+import { t } from '../typescript-eslint';
 import { type Rule } from 'eslint';
 import {
   generateMeta,
@@ -30,7 +30,7 @@ import {
 import { type LogicalExpression } from 'estree';
 import rspecMeta from './meta.json';
 
-const preferNullishCoalescingRule = tsEslintRules['prefer-nullish-coalescing'];
+const preferNullishCoalescingRule = t['prefer-nullish-coalescing'];
 
 export const rule = interceptReport(
   {
