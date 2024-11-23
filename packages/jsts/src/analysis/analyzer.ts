@@ -102,9 +102,18 @@ function analyzeFile(
 
     return result;
   } catch (e) {
+    console.log('{[[[[[[[[[[[[[[[[[[[ ERROR ]]]]]]]]]]}}}}}}}}}}}}}', e.message);
+
+    // todo: let's use a type predicate here, i.e. `isAParsingError(e)`
     /** Turns exceptions from TypeScript compiler into "parsing" errors */
     if (e.stack.indexOf('typescript.js:') > -1) {
-      throw APIError.failingTypeScriptError(e.message);
+      return {
+        issues: [],
+        parsingError: {
+          code: (e as APIError).code,
+          message: (e as APIError).message,
+        },
+      };
     } else {
       throw e;
     }

@@ -19,7 +19,7 @@
  */
 import * as url from 'node:url';
 import * as path from 'node:path';
-import fs from 'fs-extra';
+import * as fs from 'node:fs';
 import { DISTROS } from '../node-distros.mjs';
 // replace __dirname in module
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
@@ -58,7 +58,9 @@ export function getRuntimePaths() {
   for (const distro of DISTROS) {
     const sourceDir = path.join(RUNTIMES_DIR, distro.id);
     // needed in case the script is run on a clean machine (no cache)
-    fs.mkdirpSync(sourceDir);
+    fs.mkdirSync(sourceDir, {
+      recursive: true
+    });
     const filename = path.basename(distro.binPath + '.xz');
     const sourceFilename = path.join(sourceDir, filename);
     const targetDir = path.join(TARGET_DIR, distro.id);

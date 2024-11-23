@@ -88,6 +88,12 @@ public class NodeCommand {
     }
   }
 
+  public void stop() {
+    LOG.info("Process about to be destroyed");
+
+    process.destroy();
+  }
+
   private static List<String> buildCommand(
     String nodeExecutable,
     List<String> nodeJsArgs,

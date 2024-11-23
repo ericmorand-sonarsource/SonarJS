@@ -20,7 +20,7 @@
 import v8 from 'v8';
 import os from 'os';
 import fs from 'fs';
-import { constants, NodeGCPerformanceDetail, PerformanceObserver } from 'perf_hooks';
+import { constants, NodeGCPerformanceDetail, PerformanceObserver } from 'node:perf_hooks';
 import { debug, error, info, warn } from '../../shared/src/helpers/logging.js';
 import { getContext } from '../../shared/src/helpers/context.js';
 

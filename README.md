@@ -30,6 +30,32 @@ If you want to report a bug, request a feature, or provide other kind of feedbac
 
 # Contributing
 
+To work on the One Double Zero Project, it is required to have the following tools installed:
+
+- [Node.js](https://nodejs.org/en) >= 22.0.0
+- [npm](https://www.npmjs.com/) >= 8.0.0
+- Maven
+- tsx
+- esbuild
+- rimraf
+- pretty-quick
+
+It is also recommended to have the following tools installed globally to ease the writing of tests and the tracking of the code coverage:
+
+- [One Double Zero](https://www.npmjs.com/package/one-double-zero) itself
+- [ts-node](https://www.npmjs.com/package/ts-node)
+- typedoc
+- prettier
+- husky
+
+ESLint plugin Documentation:
+
+- eslint-doc-generator
+
+Project documentation:
+
+- typedoc
+
 #### 1. Request a new feature
 
 To request a new feature, create a new thread in [SonarSource Community Forum](https://community.sonarsource.com/). Even if you plan to implement it yourself and submit it back to the community, please create a thread to be sure that we can follow up on it.

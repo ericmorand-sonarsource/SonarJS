@@ -34,6 +34,7 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -81,6 +82,7 @@ public class BridgeServerImpl implements BridgeServer {
   private final Bundle bundle;
   private final String hostAddress;
   private int port;
+  private int heartbeatPort;
   private NodeCommand nodeCommand;
   private Status status = Status.NOT_STARTED;
   private final RulesBundles rulesBundles;
@@ -206,6 +208,7 @@ public class BridgeServerImpl implements BridgeServer {
     LOG.debug("Starting server");
     long start = System.currentTimeMillis();
     port = findOpenPort();
+    heartbeatPort = findOpenPort();
 
     File scriptFile = new File(bundle.startServerScript());
     if (!scriptFile.exists()) {
@@ -273,11 +276,12 @@ public class BridgeServerImpl implements BridgeServer {
       .script(scriptFile.getAbsolutePath())
       .scriptArgs(
         String.valueOf(port),
-        hostAddress,
+        String.valueOf(heartbeatPort),
         workdir,
         String.valueOf(allowTsParserJsFiles),
         String.valueOf(isSonarLint),
         String.valueOf(debugMemory),
+        scriptFile.getParent(),
         bundles
       )
       .env(getEnv());
@@ -375,9 +379,22 @@ public class BridgeServerImpl implements BridgeServer {
     );
     String request = GSON.toJson(initLinterRequest);
 
-    String response = request(request, "init-linter").json();
-    if (!"OK!".equals(response)) {
-      throw new IllegalStateException("Failed to initialize linter");
+    URI uri = null;
+    try {
+      uri = new URI("http", null, hostAddress, port, "/init-linter", null, null);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+
+    HttpResponse response = null;
+    try {
+      response = http.getResponse(uri, request);
+
+      if (response.statusCode() != 200) {
+        throw new IllegalStateException("Failed to initialize linter");
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -447,10 +464,13 @@ public class BridgeServerImpl implements BridgeServer {
       return false;
     }
     try {
-      String res = http.get(url("status"));
-      return "OK!".equals(res);
+      var heartBeatURI = new URI("http", null, hostAddress, heartbeatPort, "/", null, null);
+      var response = http.getResponse(heartBeatURI);
+      return response.statusCode() == 200; // todo: there is no contract for the heartbeat service, we assume here that it returns 200 when everything is fine; potentially, we could also establish that it returns an error from the 5xx range
     } catch (IOException e) {
       return false;
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -497,8 +517,21 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public boolean deleteProgram(TsProgram tsProgram) {
     var programToDelete = new TsProgram(tsProgram.programId(), null, null);
-    var response = request(GSON.toJson(programToDelete), "delete-program").json();
-    return "OK!".equals(response);
+
+    URI uri = null;
+    try {
+      uri = new URI("http", null, hostAddress, heartbeatPort, "/delete-program", null, null);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+
+    HttpResponse response = null;
+    try {
+      response = http.getResponse(uri, GSON.toJson(programToDelete));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return response.statusCode() == 200;
   }
 
   @Override
@@ -513,12 +546,20 @@ public class BridgeServerImpl implements BridgeServer {
 
   @Override
   public void clean() {
-    LOG.trace("Closing heartbeat service");
+    LOG.info("Closing heartbeat service");
     heartbeatService.shutdownNow();
     if (nodeCommand != null && isAlive()) {
-      request("", "close");
-      nodeCommand.waitFor();
-      nodeCommand = null;
+      URI closeURI = null;
+      try {
+        closeURI = new URI("http", null, hostAddress, heartbeatPort, "/close", null, null);
+
+        http.getResponse(closeURI);
+        nodeCommand.stop();
+        nodeCommand.waitFor();
+        nodeCommand = null;
+      } catch (URISyntaxException | IOException e) {
+        throw new RuntimeException(e);
+      }
     }
     port = 0;
     status = Status.NOT_STARTED;

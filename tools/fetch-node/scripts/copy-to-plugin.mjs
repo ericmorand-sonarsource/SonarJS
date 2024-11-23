@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import fse from 'fs-extra';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { getRuntimePaths } from './directories.mjs';
@@ -35,8 +34,10 @@ import { NODE_VERSION, VERSION_FILENAME } from '../node-distros.mjs';
 const runtimePaths = getRuntimePaths();
 
 runtimePaths.forEach(p => {
-  fse.mkdirpSync(p.targetDir);
+  fs.mkdirSync(p.targetDir, {
+    recursive: true,
+  });
   console.log(`Copying ${p.sourceFilename} to ${p.targetFilename}`);
-  fse.copySync(p.sourceFilename, p.targetFilename);
+  fs.cpSync(p.sourceFilename, p.targetFilename);
   fs.writeFileSync(path.join(p.targetDir, VERSION_FILENAME), NODE_VERSION);
 });

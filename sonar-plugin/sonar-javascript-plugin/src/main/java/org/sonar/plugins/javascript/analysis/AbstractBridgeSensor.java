@@ -74,6 +74,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
         return;
       }
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(context));
+
       analyzeFiles(inputFiles);
     } catch (CancellationException e) {
       // do not propagate the exception

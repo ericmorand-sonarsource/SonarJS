@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import fetch from 'node-fetch';
-import fs from 'fs-extra';
+import * as fs from 'node:fs';
 import extract from 'extract-zip';
 import * as tar from 'tar';
 import * as path from 'node:path';
@@ -102,10 +102,12 @@ function copyRuntime(distroName, distroId, binPath, nodeDir, targetDir) {
   console.log(`Copying runtime for ${distroName} from ${nodeDir} to ${targetDir}`);
   const nodeSource = path.join(nodeDir, distroName, binPath);
   const distroDir = path.join(targetDir, distroId);
-  fs.mkdirpSync(distroDir);
+  fs.mkdirSync(distroDir, {
+    recursive: true,
+  });
   const targetFile = path.join(distroDir, path.basename(binPath));
   console.log(`Copying runtime from ${nodeSource} to ${targetFile}`);
-  fs.copySync(nodeSource, targetFile, { overwrite: true });
+  fs.cpSync(nodeSource, targetFile, { force: true });
   return targetFile;
 }
 
@@ -133,7 +135,9 @@ async function downloadFile(url, file, authToken) {
   }
 
   const tempFile = `${file}.downloading`;
-  fs.mkdirpSync(path.dirname(tempFile));
+  fs.mkdirSync(path.dirname(tempFile), {
+    recursive: true,
+  });
   const ws = fs.createWriteStream(tempFile);
   res.body.pipe(ws);
 
@@ -143,7 +147,7 @@ async function downloadFile(url, file, authToken) {
         fs.rmSync(tempFile);
         reject(`${err.message}`);
       } else {
-        fs.moveSync(tempFile, file);
+        fs.cpSync(tempFile, file);
         console.log('Downloaded', file);
         resolve();
       }

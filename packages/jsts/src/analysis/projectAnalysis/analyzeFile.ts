@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { parseParsingError } from '../../../../bridge/src/errors/index.js';
 import { JsTsAnalysisInput } from '../analysis.js';
 import { analyzeJSTS } from '../analyzer.js';
 
@@ -26,9 +25,5 @@ import { analyzeJSTS } from '../analyzer.js';
  * @param input JsTsAnalysisInput object containing all the data necessary for the analysis
  */
 export function analyzeFile(input: JsTsAnalysisInput) {
-  try {
-    return analyzeJSTS(input, input.language!);
-  } catch (e) {
-    return parseParsingError(e);
-  }
+  return analyzeJSTS(input, input.language!);
 }

@@ -31,7 +31,7 @@ export const meta = {
 };
 
 export const sonarKey = 'S5604';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { JSONSchema4 } from 'json-schema';
 export const schema = {
   type: 'array',
   minItems: 0,

@@ -76,17 +76,17 @@ type EmbeddedRequest = {
   data: MaybeIncompleteEmbeddedAnalysisInput;
 };
 
-type JsTsRequest = {
+export type JsTsRequest = {
   type: 'on-analyze-ts' | 'on-analyze-with-program' | 'on-analyze-js';
   data: MaybeIncompleteJsTsAnalysisInput;
 };
 
-type ProjectAnalysisRequest = {
+export type ProjectAnalysisRequest = {
   type: 'on-analyze-project';
   data: ProjectAnalysisInput;
 };
 
-type CreateProgramRequest = {
+export type CreateProgramRequest = {
   type: 'on-create-program';
   data: { tsConfig: string };
 };
@@ -96,12 +96,12 @@ type CreateTsConfigFileRequest = {
   data: TsConfigJson;
 };
 
-type DeleteProgramRequest = {
+export type DeleteProgramRequest = {
   type: 'on-delete-program';
   data: { programId: string };
 };
 
-type InitLinterRequest = {
+export type InitLinterRequest = {
   type: 'on-init-linter';
   data: {
     linterId: string;

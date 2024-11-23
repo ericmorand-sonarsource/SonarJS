@@ -17,19 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import protobuf from 'protobufjs';
+import { Root } from 'protobufjs';
 import { TSESTree } from '@typescript-eslint/utils';
 import { debug } from '../../../shared/src/helpers/logging.js';
 
-import path from 'path';
-import { fileURLToPath } from 'node:url';
-
-const PATH_TO_PROTOFILE = path.join(path.dirname(fileURLToPath(import.meta.url)), 'estree.proto');
-const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
-const NODE_TYPE = PROTO_ROOT.lookupType('Node');
-export const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
-
 export function serializeInProtobuf(ast: TSESTree.Program): Uint8Array {
+  const PROTO_ROOT = new Root();
+  const NODE_TYPE = PROTO_ROOT.lookupType('Node');
   const protobufAST = parseInProtobuf(ast);
   return NODE_TYPE.encode(NODE_TYPE.create(protobufAST)).finish();
 }
@@ -38,6 +32,7 @@ export function serializeInProtobuf(ast: TSESTree.Program): Uint8Array {
  * Only used for tests
  */
 export function parseInProtobuf(ast: TSESTree.Program) {
+  const PROTO_ROOT = new Root();
   const protobugShapedAST = visitNode(ast);
   const protobufType = PROTO_ROOT.lookupType('Node');
   return protobufType.create(protobugShapedAST);
@@ -47,6 +42,8 @@ export function parseInProtobuf(ast: TSESTree.Program) {
  * Only used for tests
  */
 export function deserializeProtobuf(serialized: Uint8Array): any {
+  const PROTO_ROOT = new Root();
+  const NODE_TYPE = PROTO_ROOT.lookupType('Node');
   const decoded = NODE_TYPE.decode(serialized);
   return decoded;
 }
@@ -63,7 +60,7 @@ export function visitNode(node: TSESTree.Node | undefined | null): VisitNodeRetu
     return undefined;
   }
 
-  return getProtobufShapeForNode(node);
+  return getProtobufShapeForNode(node) as any;
 }
 
 function getProtobufShapeForNode(node: TSESTree.Node) {
@@ -400,7 +397,7 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
       debug(`Unknown node type: ${node.type}`);
   }
   return {
-    type: NODE_TYPE_ENUM.values[node.type + 'Type'] ?? NODE_TYPE_ENUM.values['UnknownNodeType'],
+    type: node.type, // todo: Wow, NODE_TYPE_ENUM, why? NODE_TYPE_ENUM.values[node.type + 'Type'] ?? NODE_TYPE_ENUM.values['UnknownNodeType'],
     loc: node.loc,
     [lowerCaseFirstLetter(node.type)]: shape || visitUnknownNode(node),
   };

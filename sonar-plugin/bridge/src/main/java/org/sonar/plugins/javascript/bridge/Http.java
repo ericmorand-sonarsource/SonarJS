@@ -39,6 +39,9 @@ public interface Http {
 
   String get(URI uri) throws IOException;
 
+  HttpResponse getResponse(URI uri) throws IOException;
+  HttpResponse getResponse(URI uri, String json) throws IOException;
+
   record Response(@Nullable String contentType, byte[] body) {}
 
   class JdkHttp implements Http {
@@ -76,6 +79,26 @@ public interface Http {
       try {
         var response = client.send(request, HttpResponse.BodyHandlers.ofString());
         return response.body();
+      } catch (InterruptedException e) {
+        throw handleInterruptedException(e, "isAlive was interrupted");
+      }
+    }
+
+    public HttpResponse getResponse(URI uri) throws IOException{
+      var request = HttpRequest.newBuilder(uri).GET().build();
+      try {
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        return response;
+      } catch (InterruptedException e) {
+        throw handleInterruptedException(e, "isAlive was interrupted");
+      }
+    }
+
+    public HttpResponse getResponse(URI uri, String json) throws IOException{
+      var request = HttpRequest.newBuilder(uri).POST(HttpRequest.BodyPublishers.ofString(json)).build();
+      try {
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        return response;
       } catch (InterruptedException e) {
         throw handleInterruptedException(e, "isAlive was interrupted");
       }

@@ -17,31 +17,71 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as express from 'express';
-import { Worker } from 'worker_threads';
-import { createDelegator } from './delegate.js';
+import { Middleware } from '@arabesque/core';
+import { Context } from './context';
+import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/projectAnalyzer';
+import { createProgramRouteHandler } from './route-handlers/create-program.route-handler';
+import { analyzeJsRouteHandler } from './route-handlers/analyze-js.route-handler';
+import { initLinterRouteHandler } from './route-handlers/init-linter.route-handler';
+import { deleteProgramRouteHandler } from './route-handlers/delete-program.route-handler';
+import { RouteHandler } from './route-handler';
+import { ProjectAnalysisRequest } from './request';
+import { ProjectAnalysisOutput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis';
 
-export default function (worker?: Worker): express.Router {
-  const router = express.Router();
-  const delegate = createDelegator(worker);
+export const createRouter = (): Middleware<Context<any>> => {
+  return (context, next) => {
+    let routeHandler: RouteHandler<any, any> | null = null;
 
-  /** Endpoints running on the worker thread */
-  router.post('/analyze-project', delegate('on-analyze-project'));
-  router.post('/analyze-css', delegate('on-analyze-css'));
-  router.post('/analyze-js', delegate('on-analyze-js'));
-  router.post('/analyze-html', delegate('on-analyze-html'));
-  router.post('/analyze-ts', delegate('on-analyze-ts'));
-  router.post('/analyze-with-program', delegate('on-analyze-with-program'));
-  router.post('/analyze-yaml', delegate('on-analyze-yaml'));
-  router.post('/create-program', delegate('on-create-program'));
-  router.post('/create-tsconfig-file', delegate('on-create-tsconfig-file'));
-  router.post('/delete-program', delegate('on-delete-program'));
-  router.post('/init-linter', delegate('on-init-linter'));
-  router.post('/new-tsconfig', delegate('on-new-tsconfig'));
-  router.post('/tsconfig-files', delegate('on-tsconfig-files'));
+    switch (context.url) {
+      case '/analyze-project': {
+        routeHandler = <RouteHandler<ProjectAnalysisRequest['data'], ProjectAnalysisOutput>>(
+          (context => {
+            return analyzeProject(context.data).then(response => {
+              return {
+                data: response,
+              };
+            });
+          })
+        );
 
-  /** Endpoints running on the main thread */
-  router.get('/status', (_, response) => response.send('OK!'));
+        break;
+      }
 
-  return router;
-}
+      case '/create-program': {
+        routeHandler = createProgramRouteHandler;
+        break;
+      }
+
+      case '/delete-program': {
+        routeHandler = deleteProgramRouteHandler;
+        break;
+      }
+
+      case '/analyze-js': {
+        routeHandler = analyzeJsRouteHandler;
+        break;
+      }
+
+      case '/init-linter': {
+        routeHandler = initLinterRouteHandler;
+        break;
+      }
+    }
+
+    return routeHandler
+      ? routeHandler(context)
+          .then(result => {
+            context.setResponse(JSON.stringify(result.data));
+
+            if (result.statusCode) {
+              context.setResponseStatusCode(result.statusCode);
+            }
+
+            return next(context);
+          })
+          .catch(() => {
+            return Promise.resolve(context);
+          })
+      : Promise.resolve(context);
+  };
+};
