@@ -14,16 +14,21 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { AddressInfo } from 'net';
-import http from 'http';
+
+import { Response } from '../../src/server.js';
 
 export type BridgeResponseType = 'text' | 'formdata';
 
 /**
  * Sends an HTTP request to a server's endpoint running on localhost.
  */
-export async function request(server: http.Server, path: string, method: string, body: any = {}) {
-  const res = await fetch(`http://127.0.0.1:${(server.address() as AddressInfo).port}${path}`, {
+export async function request(
+  fetch: (url: string, data: any) => Promise<Response>,
+  path: string,
+  method: string,
+  body: any = {},
+): Promise<Response> {
+  const res = await fetch(path, {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -33,9 +38,7 @@ export async function request(server: http.Server, path: string, method: string,
 
   const contentTypeHeader = res.headers.get('Content-Type');
 
-  if (contentTypeHeader?.includes('multipart/form-data')) {
-    return res.formData();
-  } else {
-    return res.text();
-  }
+  console.log('contentTypeHeader', path, contentTypeHeader);
+
+  return res;
 }

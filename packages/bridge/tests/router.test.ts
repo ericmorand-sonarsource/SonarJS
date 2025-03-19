@@ -14,9 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import http from 'http';
 import path from 'path';
-import { start } from '../src/server.js';
+import { Response, Request, Server, ServerFactory, start } from '../src/server.js';
 import { request } from './tools/index.js';
 import fs from 'fs';
 import { describe, before, after, it, type Mock } from 'node:test';
@@ -30,6 +29,147 @@ import { deserializeProtobuf } from '../../jsts/src/parsers/ast.js';
 import { createAndSaveProgram } from '../../jsts/src/program/program.js';
 import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import { createWorker } from '../../shared/src/helpers/worker.js';
+import http from 'http';
+import { Writable } from 'node:stream';
+
+const createFetch = () => {
+  let handlers: {
+    close: () => void;
+    error: (error: Error) => void;
+    listening: () => void;
+    request: (request: Request, response: Response) => void;
+  } = {
+    close: () => {},
+    error: () => {},
+    listening: () => {},
+    request: () => {},
+  };
+
+  let app: {
+    request: http.IncomingMessage;
+    response: http.ServerResponse;
+  } = null;
+
+  const createServerFactory = (): ServerFactory => {
+    return application => {
+      app = application;
+
+      let listening: boolean = false;
+
+      const server: Server = {
+        get listening() {
+          return listening;
+        },
+        closeAllConnections: () => {},
+        close: () => {
+          handlers.close();
+        },
+        address: () => {
+          return {
+            port: 8000,
+          };
+        },
+        listen: (port, host) => {
+          console.log(`LISTEN ${host}:${port}...`);
+
+          listening = true;
+        },
+        on: (eventName: string, handler) => {
+          console.log('ON', eventName);
+
+          if (eventName === 'request') {
+            console.log('REQUEST HANDLER IS', handler);
+          }
+
+          if (eventName === 'listening') {
+            // we are immediately ready, let us announce it
+            handler();
+          }
+
+          handlers[eventName] = handler;
+
+          return server;
+        },
+        // emit(eventName: string, ...args: Array<any>) {
+        //   console.log("EMIT", eventName, args);
+        //
+        //   if (eventName === "error") {
+        //     handlers.error(args[0]);
+        //   }
+        //   if (eventName === "close") {
+        //     handlers.close();
+        //   }
+        //   else if (eventName === "listening") {
+        //     handlers.listening();
+        //   }
+        //   else if (eventName === "request") {
+        //     handlers.request(args[0], args[1]);
+        //   }
+        // }
+      };
+
+      return server;
+    };
+  };
+
+  return {
+    createServerFactory,
+    fetch: (url: string, data: any): Promise<Response> => {
+      return new Promise(async resolve => {
+        const headers: Response['headers'] = new Map();
+
+        let responseData: any = null;
+        let responseBuffer = Buffer.from('');
+
+        const writable = new Writable({
+          write(chunk, encoding, callback) {
+            responseBuffer = Buffer.concat([responseBuffer, Buffer.from(chunk, encoding)]);
+
+            callback();
+          },
+        });
+
+        writable.on('finish', () => {
+          console.log('FINISHHHHHHHHHHHHHHHH');
+
+          resolve(response);
+        });
+
+        const response = {
+          headers,
+          formData: () => {
+            return {} as any;
+          },
+          setHeader: (name, value) => {
+            headers.set(name, value);
+          },
+          send: data => {
+            console.log('SEND', url, data);
+
+            responseData = data;
+
+            resolve(response);
+          },
+          text: () => {
+            return JSON.stringify(responseData);
+          },
+          writable,
+        };
+
+        await (app.request as any).app(
+          {
+            url,
+            body: JSON.parse(data.body),
+            method: data.method,
+          },
+          response,
+        );
+      });
+    },
+  };
+};
+
+const { fetch, createServerFactory } = createFetch();
 
 describe('router', () => {
   const fixtures = path.join(import.meta.dirname, 'fixtures', 'router');
@@ -37,17 +177,16 @@ describe('router', () => {
   let closePromise: Promise<void>;
   const workerPath = path.join(import.meta.dirname, '..', '..', '..', 'server.mjs');
 
-  let server: http.Server;
+  const serverFactory = createServerFactory();
 
   before(async () => {
     const worker = createWorker(workerPath);
-    const { server: serverInstance, serverClosed } = await start(port, '127.0.0.1', worker);
-    server = serverInstance;
+    const { serverClosed } = await start(serverFactory, port, '127.0.0.1');
     closePromise = serverClosed;
   });
 
   after(async () => {
-    await request(server, '/close', 'POST');
+    await request(fetch, '/close', 'POST');
     //We need to await the server close promise, as the http server still needs to be up to finish the response of the /close request.
     await closePromise;
   });
@@ -70,14 +209,17 @@ describe('router', () => {
       },
     };
 
-    const response = (await request(server, '/analyze-project', 'POST', payload)) as string;
+    const response = await request(fetch, '/analyze-project', 'POST', payload);
+
+    console.log('>>>>>>> RESPONSE', response, JSON.parse(response.text()));
+
     const {
       files: {
         [filePath]: {
           issues: [issue],
         },
       },
-    } = JSON.parse(response);
+    } = JSON.parse(response.text());
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S4621',
@@ -94,8 +236,8 @@ describe('router', () => {
     const filePath = path.join(fixtures, 'file.css');
     const rules = [{ key: S5362.ruleName, configurations: [] }];
     const data = { filePath, rules };
-    const response = (await request(server, '/analyze-css', 'POST', data)) as string;
-    expect(JSON.parse(response)).toEqual({
+    const response = await request(fetch, '/analyze-css', 'POST', data);
+    expect(JSON.parse(response.text())).toEqual({
       issues: [
         {
           ruleId: S5362.ruleName,
@@ -108,7 +250,7 @@ describe('router', () => {
   });
 
   it('should route /analyze-jsts requests', async () => {
-    await requestInitLinter(server, [
+    await requestInitLinter(fetch, [
       {
         key: 'S6325',
         configurations: [],
@@ -127,10 +269,13 @@ describe('router', () => {
     let filePath = path.join(fixtures, 'file.js');
     let fileType = 'MAIN';
     let data: any = { filePath, fileType, tsConfigs: [] };
-    let response: any = await request(server, '/analyze-jsts', 'POST', data);
+    let response = await request(fetch, '/analyze-jsts', 'POST', data);
+
+    console.log('============== analyze-jsts', response);
+
     let {
       issues: [issue],
-    } = JSON.parse(response.get('json') as string);
+    } = JSON.parse(response.formData().get('json')?.toString());
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S6325',
@@ -141,8 +286,8 @@ describe('router', () => {
         message: `Use a regular expression literal instead of the 'RegExp' constructor.`,
       }),
     );
-    expect(response.get('ast')).toBeInstanceOf(Blob);
-    const ast = response.get('ast') as File;
+    expect(response.formData().get('ast')).toBeInstanceOf(Blob);
+    const ast = response.formData().get('ast') as File;
     const buffer = Buffer.from(await ast.arrayBuffer());
     const protoMessage = deserializeProtobuf(buffer);
     expect(protoMessage.type).toEqual(0);
@@ -152,10 +297,10 @@ describe('router', () => {
     filePath = path.join(fixtures, 'file.ts');
     fileType = 'MAIN';
     data = { filePath, fileType, tsConfigs: [path.join(fixtures, 'tsconfig.json')], skipAst: true };
-    response = (await request(server, '/analyze-jsts', 'POST', data)) as string;
+    response = await request(fetch, '/analyze-jsts', 'POST', data);
     ({
       issues: [issue],
-    } = JSON.parse(response));
+    } = JSON.parse(response.text()));
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S4621',
@@ -169,7 +314,7 @@ describe('router', () => {
   });
 
   it('should route /analyze-with-program requests', async () => {
-    await requestInitLinter(server, [
+    await requestInitLinter(fetch, [
       {
         key: 'S4621',
         configurations: [],
@@ -182,13 +327,13 @@ describe('router', () => {
     const fileType = 'MAIN';
     const tsConfig = path.join(fixtures, 'tsconfig.json');
     const { programId } = JSON.parse(
-      (await request(server, '/create-program', 'POST', { tsConfig })) as string,
+      (await request(fetch, '/create-program', 'POST', { tsConfig })).text(),
     );
     const data = { filePath, fileType, programId, skipAst: true };
-    const response = (await request(server, '/analyze-jsts', 'POST', data)) as string;
+    const response = await request(fetch, '/analyze-jsts', 'POST', data);
     const {
       issues: [issue],
-    } = JSON.parse(response);
+    } = JSON.parse(response.text());
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S4621',
@@ -202,7 +347,7 @@ describe('router', () => {
   });
 
   it('should route /analyze-yaml requests', async () => {
-    await requestInitLinter(server, [
+    await requestInitLinter(fetch, [
       {
         key: 'S3923',
         configurations: [],
@@ -214,10 +359,10 @@ describe('router', () => {
     const filePath = path.join(fixtures, 'file.yaml');
     const filePathWithLambda = path.join(fixtures, 'file-SomeLambdaFunction.yaml');
     const data = { filePath };
-    const response = (await request(server, '/analyze-yaml', 'POST', data)) as string;
+    const response = await request(fetch, '/analyze-yaml', 'POST', data);
     const {
       issues: [issue],
-    } = JSON.parse(response);
+    } = JSON.parse(response.text());
     expect(issue).toEqual({
       ruleId: 'S3923',
       language: 'js',
@@ -235,7 +380,7 @@ describe('router', () => {
   });
 
   it('should route /analyze-html requests', async () => {
-    await requestInitLinter(server, [
+    await requestInitLinter(fetch, [
       {
         key: 'S3923',
         configurations: [],
@@ -246,10 +391,10 @@ describe('router', () => {
     ]);
     const filePath = path.join(fixtures, 'file.html');
     const data = { filePath };
-    const response = (await request(server, '/analyze-html', 'POST', data)) as string;
+    const response = await request(fetch, '/analyze-html', 'POST', data);
     const {
       issues: [issue],
-    } = JSON.parse(response);
+    } = JSON.parse(response.text());
     expect(issue).toEqual({
       ruleId: 'S3923',
       language: 'js',
@@ -269,8 +414,8 @@ describe('router', () => {
   it('should route /create-program requests', async () => {
     const tsConfig = path.join(fixtures, 'tsconfig.json');
     const data = { tsConfig };
-    const response = (await request(server, '/create-program', 'POST', data)) as string;
-    const programId = Number(JSON.parse(response).programId);
+    const response = await request(fetch, '/create-program', 'POST', data);
+    const programId = Number(JSON.parse(response.text()).programId);
     expect(programId).toBeDefined();
     expect(programId).toBeGreaterThan(0);
   });
@@ -279,8 +424,8 @@ describe('router', () => {
     console.error = mock.fn(console.error);
     const tsConfig = path.join(fixtures, 'malformed.json');
     const data = { tsConfig };
-    const response = (await request(server, '/create-program', 'POST', data)) as string;
-    const { error } = JSON.parse(response);
+    const response = await request(fetch, '/create-program', 'POST', data);
+    const { error } = JSON.parse(response.text());
     expect(error).toBeDefined();
     assert((console.error as Mock<typeof console.error>).mock.calls.length > 0);
   });
@@ -289,44 +434,44 @@ describe('router', () => {
     const tsConfig = path.join(fixtures, 'tsconfig.json');
     const { programId } = createAndSaveProgram(tsConfig);
     const data = { programId };
-    const response = (await request(server, '/delete-program', 'POST', data)) as string;
-    expect(response).toEqual('OK!');
+    const response = await request(fetch, '/delete-program', 'POST', data);
+    expect(response.text()).toEqual('OK!');
   });
 
   it('should route /init-linter requests', async () => {
     const data = { rules: [], environments: [], globals: [] };
-    const response = await request(server, '/init-linter', 'POST', data);
-    expect(response).toEqual('OK!');
+    const response = await request(fetch, '/init-linter', 'POST', data);
+    expect(response.text()).toEqual('OK!');
   });
 
   it('should route /new-tsconfig requests', async () => {
     const data = {};
-    const response = await request(server, '/new-tsconfig', 'POST', data);
-    expect(response).toEqual('OK!');
+    const response = await request(fetch, '/new-tsconfig', 'POST', data);
+    expect(response.text()).toEqual('OK!');
   });
 
   it('should route /status requests', async () => {
-    const response = await request(server, '/status', 'GET');
-    expect(response).toEqual('OK!');
+    const response = await request(fetch, '/status', 'GET');
+    expect(response.text()).toEqual('OK!');
   });
 
   it('should route /tsconfig-files requests', async () => {
     const file = toUnixPath(path.join(fixtures, 'file.ts'));
 
     const tsconfig1 = path.join(fixtures, 'tsconfig.json');
-    const response1 = (await request(server, '/tsconfig-files', 'POST', {
+    const response1 = await request(fetch, '/tsconfig-files', 'POST', {
       tsConfig: tsconfig1,
-    })) as string;
-    expect(JSON.parse(response1)).toEqual({
+    });
+    expect(JSON.parse(response1.text())).toEqual({
       files: [file],
       projectReferences: [],
     });
 
     const tsconfig2 = path.join(fixtures, 'tsconfig-references.json');
-    const response2 = (await request(server, '/tsconfig-files', 'POST', {
+    const response2 = await request(fetch, '/tsconfig-files', 'POST', {
       tsConfig: tsconfig2,
-    })) as string;
-    expect(JSON.parse(response2)).toEqual({
+    });
+    expect(JSON.parse(response2.text())).toEqual({
       files: [file],
       projectReferences: [toUnixPath(tsconfig1)],
     });
@@ -336,30 +481,30 @@ describe('router', () => {
     console.error = mock.fn(console.error);
     const tsConfig = toUnixPath(path.join(fixtures, 'malformed.json'));
     const data = { tsConfig };
-    const response = (await request(server, '/tsconfig-files', 'POST', data)) as string;
-    const { error } = JSON.parse(response);
+    const response = await request(fetch, '/tsconfig-files', 'POST', data);
+    const { error } = JSON.parse(response.text());
     expect(error).toContain("']' expected.");
     assert((console.error as Mock<typeof console.error>).mock.calls.length > 0);
   });
 
   it('should write tsconfig.json file', async () => {
-    const response = (await request(server, '/create-tsconfig-file', 'POST', {
+    const response = await request(fetch, '/create-tsconfig-file', 'POST', {
       include: ['/path/to/project/**/*'],
-    })) as string;
-    const json = JSON.parse(response);
+    });
+    const json = JSON.parse(response.text());
     expect(json).toBeTruthy();
     expect(json.filename).toBeTruthy();
     expect(fs.existsSync(json.filename)).toBe(true);
   });
 
   it('should return empty get-telemetry on fresh server', async () => {
-    const response = (await request(server, '/get-telemetry', 'GET')) as string;
-    const json = JSON.parse(response);
+    const response = await request(fetch, '/get-telemetry', 'GET');
+    const json = JSON.parse(response.text());
     expect(json).toEqual({ dependencies: [] });
   });
 });
 
-function requestInitLinter(server: http.Server, rules: RuleConfig[]) {
+function requestInitLinter(fetch: any, rules: RuleConfig[]) {
   const config = { rules };
-  return request(server, '/init-linter', 'POST', config);
+  return request(fetch, '/init-linter', 'POST', config);
 }

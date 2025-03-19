@@ -22,6 +22,8 @@ import { handleRequest } from './handle-request.js';
 import { AnalysisOutput } from '../../shared/src/types/analysis.js';
 import { RequestResult, RequestType } from './request.js';
 import { WorkerData } from '../../shared/src/helpers/worker.js';
+import { Response } from './server.js';
+import { PassThrough } from 'node:stream';
 
 /**
  * Returns a delegate function to handle an HTTP request
@@ -80,15 +82,16 @@ function handleResult(
   }
 }
 
-function sendFormData(result: JsTsAnalysisOutputWithAst, response: express.Response) {
+function sendFormData(result: JsTsAnalysisOutputWithAst, response: Response) {
   const { ast, ...rest } = result;
   const fd = new formData();
   fd.append('ast', Buffer.from(ast), { filename: 'ast' });
   fd.append('json', JSON.stringify(rest));
   // this adds the boundary string that will be used to separate the parts
-  response.set('Content-Type', fd.getHeaders()['content-type']);
-  response.set('Content-Length', `${fd.getLengthSync()}`);
-  fd.pipe(response);
+  response.setHeader('Content-Type', fd.getHeaders()['content-type']);
+  response.setHeader('Content-Length', `${fd.getLengthSync()}`);
+
+  fd.pipe(response.writable);
 }
 
 function outputContainsAst(result: AnalysisOutput): result is JsTsAnalysisOutputWithAst {

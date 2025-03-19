@@ -24,13 +24,13 @@ import router from './router.js';
 import { errorMiddleware } from './errors/index.js';
 import { debug } from '../../shared/src/helpers/logging.js';
 import { timeoutMiddleware } from './timeout/index.js';
-import { AddressInfo } from 'net';
 import type { Worker } from 'worker_threads';
 import {
   registerGarbageCollectionObserver,
   logMemoryConfiguration,
   logMemoryError,
 } from './memory.js';
+import { type Writable } from 'node:stream';
 
 /**
  * The maximum request body size
@@ -66,13 +66,65 @@ const SHUTDOWN_TIMEOUT = 15_000;
  * @param timeout timeout in ms to shut down the server if unresponsive
  * @returns an http server
  */
+export interface Request {
+  readonly url: string;
+  readonly body: any;
+  readonly method: string;
+}
+
+export interface Response {
+  readonly headers: Map<string, string>;
+
+  formData(): FormData;
+
+  text(): string;
+
+  setHeader(name: string, value: string): void;
+
+  send(data: any): void;
+
+  readonly writable: Writable;
+}
+
+export interface Server {
+  on(eventName: 'close', handler: () => void): Server;
+
+  on(eventName: 'error', handler: (error: Error) => void): Server;
+
+  on(eventName: 'listening', handler: () => void): Server;
+
+  on(eventName: 'request', handler: (request: Request, response: Response) => void): Server;
+
+  // emit(eventName: "error", error: Error): void;
+  //
+  // emit(eventName: "request", request: IncomingMessage, response: ServerResponse): void;
+
+  address(): {
+    readonly port: number;
+  };
+
+  close(): void;
+
+  closeAllConnections(): void;
+
+  listen(port: number, host: string): void;
+
+  readonly listening: boolean;
+}
+
+export type ServerFactory = (application: {
+  request: http.IncomingMessage;
+  response: http.ServerResponse;
+}) => Server;
+
 export function start(
+  createServer: ServerFactory,
   port = 0,
   host = '127.0.0.1',
   worker?: Worker,
   debugMemory = false,
   timeout = SHUTDOWN_TIMEOUT,
-): Promise<{ server: http.Server; serverClosed: Promise<void> }> {
+): Promise<{ server: Server; serverClosed: Promise<void> }> {
   let unregisterGarbageCollectionObserver = () => {};
   const pendingCloseRequests: express.Response[] = [];
   let resolveClosed: () => void;
@@ -98,7 +150,7 @@ export function start(
     }
 
     const app = express();
-    const server = http.createServer(app);
+    const server = createServer(app);
 
     /**
      * Builds a timeout middleware to shut down the server
@@ -135,7 +187,7 @@ export function start(
        * Since we use 0 as the default port, Node.js assigns a random port to the server,
        * which we get using server.address().
        */
-      debug(`The bridge server is listening on port ${(server.address() as AddressInfo)?.port}`);
+      debug(`The bridge server is listening on port ${server.address().port}`);
       resolve({ server, serverClosed });
     });
 
